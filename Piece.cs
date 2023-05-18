@@ -10,6 +10,9 @@ namespace Official_Chess_Actual
     {
         public string team;
         public int[,] moveGrid = new int[8, 8];
+
+        private bool _hasMoved = false;
+        public bool hasMoved { get { return _hasMoved; } set { _hasMoved = value; } }
         public Piece(string Team)
         {
             team = Team;
@@ -21,11 +24,32 @@ namespace Official_Chess_Actual
     }
     class Pawn : Piece
     {
-        private bool _hasMoved = false;
-        public bool hasMoved { get { return _hasMoved; } set { _hasMoved = value; } }
         
         public Pawn(string Team) : base(Team)
         {
+        }
+        private int[,] canTake(int[,] moveGrid, Point coords)
+        {
+            //
+
+
+
+
+
+
+            // ADD TAKING
+
+
+
+
+
+
+
+            //
+            if (team == "white")
+            {
+                if (Form1.pieceGrid[coords.X-1, coords.Y-1] != null)
+            }
         }
         private int[,] moveForward(int steps, Point coords)
         {

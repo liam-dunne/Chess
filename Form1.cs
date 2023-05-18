@@ -10,7 +10,7 @@ namespace Official_Chess_Actual
 
         public int[,] moveGrid = new int[8, 8]; // Create an empty 8x8 grid for the possible moves
 
-        public Piece[,] pieceGrid = new Piece[8, 8];
+        public static Piece[,] pieceGrid = new Piece[8, 8];
         public Button[,] grid = new Button[8, 8]; // Create an empty 8x8 grid of buttons
 
         string selectedPieceTeam; //Colour of the selected piece
@@ -153,6 +153,7 @@ namespace Official_Chess_Actual
                 Button button = (Button)sender; // Cast sender to button type
                 Point coords = getCoords(button); // Get the coordinates of the clicked button
 
+                
                 // If no piece selected, sets the selected piece to the one in the clicked square and finds possible moves
                 if (!pieceSelected & pieceGrid[coords.X, coords.Y] != null) 
                 {
@@ -163,7 +164,7 @@ namespace Official_Chess_Actual
                     selectedPieceTeamChar = selectedPieceTeam[0].ToString(); // Gives the first letter of the colour of the piece
                     selectedPieceType = selectedPiece.GetType().ToString();
 
-                    
+                    // Add a border around the selected piece
                     button.FlatAppearance.BorderColor = Color.Black;
                     button.FlatAppearance.BorderSize = 1;
 
@@ -184,15 +185,18 @@ namespace Official_Chess_Actual
                 // If the selected piece is clicked again, deselect it
                 else if (coords == selectedCoords)
                 {
+                    selectedPiece.hasMoved = false;
                     pieceSelected = false;
                     selectedPiece = null;
+                    
+                    button.FlatAppearance.BorderSize = 0;
                 }
 
-                // If a move is legal, moves the piece to the new square and clears the old square
-                else if (pieceSelected & moveGrid[coords.X, coords.Y] == 1)  
+            // If a move is legal, moves the piece to the new square and clears the old square
+            else if (pieceSelected & moveGrid[coords.X, coords.Y] == 1)  
                 {
-
                     grid[selectedCoords.X, selectedCoords.Y].BackgroundImage = null; // Set old location's image to null
+                    grid[selectedCoords.X, selectedCoords.Y].FlatAppearance.BorderSize = 0;
 
                     if (selectedPieceTeam == "white") //Places the correct colour piece based on selected piece colour
                         grid[coords.X, coords.Y].BackgroundImage = images[selectedPieceImageCode];
