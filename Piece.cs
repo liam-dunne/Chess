@@ -10,6 +10,8 @@ namespace Official_Chess_Actual
     {
         public string team;
         public int[,] moveGrid = new int[8, 8];
+        private bool _isBlocked = false;
+        public bool isBlocked { get { return _isBlocked; } set { _isBlocked = value; } }
 
         private bool _hasMoved = false;
         public bool hasMoved { get { return _hasMoved; } set { _hasMoved = value; } }
@@ -28,38 +30,44 @@ namespace Official_Chess_Actual
         public Pawn(string Team) : base(Team)
         {
         }
-        private int[,] canTake(int[,] moveGrid, Point coords)
+
+        // Checks the diagonal squares to see if there is a piece there, and if there is makes it a legal move
+        private int[,] canTake(int[,] moveGrid, Point coords, int xDirection, int yDirection)
         {
-            //
-
-
-
-
-
-
-            // ADD TAKING
-
-
-
-
-
-
-
-            //
-            if (team == "white")
+            if (Form1.pieceGrid[coords.X+xDirection, coords.Y+yDirection] != null)
             {
-                if (Form1.pieceGrid[coords.X-1, coords.Y-1] != null)
+                moveGrid[coords.X + xDirection, coords.Y + yDirection] = 1;
             }
+            return moveGrid;
         }
+
+
         private int[,] moveForward(int steps, Point coords)
         {
             if (team == "white") //Allows the pawn to move 1 square forwards 
             {
-                moveGrid[coords.X, coords.Y - steps] = 1;
+                if (Form1.pieceGrid[coords.X, coords.Y + steps] != null)
+                {
+                    this.isBlocked = true;
+                    return moveGrid;
+                }
+                else
+                {
+                    moveGrid[coords.X, coords.Y + steps] = 1;
+                }
+
             }
             else if (team == "black")
             {
-                moveGrid[coords.X, coords.Y + steps] = 1;
+                if (Form1.pieceGrid[coords.X, coords.Y - steps] != null)
+                {
+                    this.isBlocked = true;
+                    return moveGrid;
+                }
+                else
+                {
+                    moveGrid[coords.X, coords.Y - steps] = 1;
+                }
             }
             return moveGrid;
         }
@@ -72,13 +80,28 @@ namespace Official_Chess_Actual
             { 
                 for (int i = 1; i < 3; i++) // Can move twice if the pawn hasn't moved yet
                 {
-                    moveGrid = moveForward(i, coords);
+                    if (isBlocked == false)
+                    {
+                        moveGrid = moveForward(i, coords);
+                    }
                 }
                 this.hasMoved = true;
             }
             else
             {
                 moveGrid = moveForward(1, coords);
+            }
+
+            for (int i = -1; i < 2; i += 2)
+            {
+                if (team == "white")
+                {
+                    moveGrid = canTake(moveGrid, coords, i, 1);
+                }
+                else
+                {
+                    moveGrid = canTake(moveGrid, coords, i, -1);
+                }
             }
 
             return moveGrid;

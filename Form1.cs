@@ -75,7 +75,7 @@ namespace Official_Chess_Actual
                     //Create new button and set size and location
                     Button newButton = new Button();
                     newButton.Size = new Size(80, 80);
-                    newButton.Location = new Point(i * 80, j * 80);
+                    newButton.Location = new Point(i * 80, 560 - j * 80);
                     newButton.FlatStyle = FlatStyle.Flat;
                     newButton.Click += new EventHandler(squareClick);
                     // Set background colour
@@ -100,25 +100,25 @@ namespace Official_Chess_Actual
         {
             for (int i = 0; i < 8; i++)
             {
-                pieceGrid[i, 6] = new Pawn("white");
-                pieceGrid[i, 1] = new Pawn("black");
+                pieceGrid[i, 1] = new Pawn("white");
+                pieceGrid[i, 6] = new Pawn("black");
             }
-            pieceGrid[0, 0] = new Rook("black");
-            pieceGrid[7, 0] = new Rook("black");
-            pieceGrid[1, 0] = new Knight("black");
-            pieceGrid[6, 0] = new Knight("black");
-            pieceGrid[2, 0] = new Bishop("black");
-            pieceGrid[5, 0] = new Bishop("black");
-            pieceGrid[3, 0] = new Queen("black");
-            pieceGrid[4, 0] = new King("black");
-            pieceGrid[0, 7] = new Rook("white");
-            pieceGrid[7, 7] = new Rook("white");
-            pieceGrid[1, 7] = new Knight("white");
-            pieceGrid[6, 7] = new Knight("white");
-            pieceGrid[2, 7] = new Bishop("white");
-            pieceGrid[5, 7] = new Bishop("white");
-            pieceGrid[3, 7] = new Queen("white");
-            pieceGrid[4, 7] = new King("white");
+            pieceGrid[0, 7] = new Rook("black");
+            pieceGrid[7, 7] = new Rook("black");
+            pieceGrid[1, 7] = new Knight("black");
+            pieceGrid[6, 7] = new Knight("black");
+            pieceGrid[2, 7] = new Bishop("black");
+            pieceGrid[5, 7] = new Bishop("black");
+            pieceGrid[3, 7] = new Queen("black");
+            pieceGrid[4, 7] = new King("black");
+            pieceGrid[0, 0] = new Rook("white");
+            pieceGrid[7, 0] = new Rook("white");
+            pieceGrid[1, 0] = new Knight("white");
+            pieceGrid[6, 0] = new Knight("white");
+            pieceGrid[2, 0] = new Bishop("white");
+            pieceGrid[5, 0] = new Bishop("white");
+            pieceGrid[3, 0] = new Queen("white");
+            pieceGrid[4, 0] = new King("white");
 
         }
 
@@ -126,25 +126,25 @@ namespace Official_Chess_Actual
         {
             for (int i = 0; i < 8; i++)
             {
-                grid[i, 6].BackgroundImage = images["wp"];
-                grid[i, 1].BackgroundImage = images["bp"];
+                grid[i, 6].BackgroundImage = images["bp"];
+                grid[i, 1].BackgroundImage = images["wp"];
             }
-            grid[0, 0].BackgroundImage = images["br"]; //Loads all images accessed from a dictionary
-            grid[7, 0].BackgroundImage = images["br"];
-            grid[1, 0].BackgroundImage = images["bn"];
-            grid[6, 0].BackgroundImage = images["bn"];
-            grid[2, 0].BackgroundImage = images["bb"];
-            grid[5, 0].BackgroundImage = images["bb"];
-            grid[3, 0].BackgroundImage = images["bq"];
-            grid[4, 0].BackgroundImage = images["bk"];
-            grid[0, 7].BackgroundImage = images["wr"];
-            grid[7, 7].BackgroundImage = images["wr"];
-            grid[1, 7].BackgroundImage = images["wn"];
-            grid[6, 7].BackgroundImage = images["wn"];
-            grid[2, 7].BackgroundImage = images["wb"];
-            grid[5, 7].BackgroundImage = images["wb"];
-            grid[3, 7].BackgroundImage = images["wq"];
-            grid[4, 7].BackgroundImage = images["wk"];
+            grid[0, 0].BackgroundImage = images["wr"]; //Loads all images accessed from a dictionary
+            grid[7, 0].BackgroundImage = images["wr"];
+            grid[1, 0].BackgroundImage = images["wn"];
+            grid[6, 0].BackgroundImage = images["wn"];
+            grid[2, 0].BackgroundImage = images["wb"];
+            grid[5, 0].BackgroundImage = images["wb"];
+            grid[3, 0].BackgroundImage = images["wq"];
+            grid[4, 0].BackgroundImage = images["wk"];
+            grid[0, 7].BackgroundImage = images["br"];
+            grid[7, 7].BackgroundImage = images["br"];
+            grid[1, 7].BackgroundImage = images["bn"];
+            grid[6, 7].BackgroundImage = images["bn"];
+            grid[2, 7].BackgroundImage = images["bb"];
+            grid[5, 7].BackgroundImage = images["bb"];
+            grid[3, 7].BackgroundImage = images["bq"];
+            grid[4, 7].BackgroundImage = images["bk"];
 
         }
             
@@ -216,7 +216,7 @@ namespace Official_Chess_Actual
             public Point getCoords(Button button)
             {
                 int x = button.Location.X / 80; 
-                int y = button.Location.Y / 80;
+                int y = 7 - button.Location.Y / 80;
                 return new Point(x, y);
             }
         }
