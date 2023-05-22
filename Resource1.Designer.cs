@@ -133,6 +133,26 @@ namespace Official_Chess_Actual {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap grey_capture_circle {
+            get {
+                object obj = ResourceManager.GetObject("grey_capture_circle", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap grey_move_circle {
+            get {
+                object obj = ResourceManager.GetObject("grey_move_circle", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap light_bishop_image {
             get {
                 object obj = ResourceManager.GetObject("light_bishop_image", resourceCulture);

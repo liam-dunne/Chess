@@ -31,12 +31,15 @@ namespace Official_Chess_Actual
         {
         }
 
-        // Checks the diagonal squares to see if there is a piece there, and if there is makes it a legal move
-        private int[,] canTake(int[,] moveGrid, Point coords, int xDirection, int yDirection)
+        // Checks the diagonal squares to see if there is an enemy piece there, and if there is makes it a legal move
+        private int[,] canTake(int[,] moveGrid, Point coords, int xDirection, int yDirection, string team)
         {
             if (Form1.pieceGrid[coords.X+xDirection, coords.Y+yDirection] != null)
             {
-                moveGrid[coords.X + xDirection, coords.Y + yDirection] = 1;
+                if (Form1.pieceGrid[coords.X + xDirection, coords.Y + yDirection].team != team)
+                {
+                    moveGrid[coords.X + xDirection, coords.Y + yDirection] = 2;
+                }
             }
             return moveGrid;
         }
@@ -68,41 +71,49 @@ namespace Official_Chess_Actual
                 {
                     moveGrid[coords.X, coords.Y - steps] = 1;
                 }
-            }
+            }            
+            
             return moveGrid;
         }
 
         public override int[,] moveRules(Point coords) // Returns an array with '1' in the squares where a move can be made
         {
             Array.Clear(moveGrid);
-
-            if (hasMoved == false)
-            { 
-                for (int i = 1; i < 3; i++) // Can move twice if the pawn hasn't moved yet
+            try 
+            {
+                if (hasMoved == false)
                 {
-                    if (isBlocked == false)
+                    for (int i = 1; i < 3; i++) // Can move twice if the pawn hasn't moved yet
                     {
-                        moveGrid = moveForward(i, coords);
+                        if (isBlocked == false)
+                        {
+                            moveGrid = moveForward(i, coords);
+                        }
                     }
-                }
-                this.hasMoved = true;
-            }
-            else
-            {
-                moveGrid = moveForward(1, coords);
-            }
-
-            for (int i = -1; i < 2; i += 2)
-            {
-                if (team == "white")
-                {
-                    moveGrid = canTake(moveGrid, coords, i, 1);
+                    this.hasMoved = true;
                 }
                 else
                 {
-                    moveGrid = canTake(moveGrid, coords, i, -1);
+                    moveGrid = moveForward(1, coords);
+                }
+
+                for (int i = -1; i < 2; i += 2)
+                {
+                    if (team == "white")
+                    {
+                        moveGrid = canTake(moveGrid, coords, i, 1, this.team);
+                    }
+                    else
+                    {
+                        moveGrid = canTake(moveGrid, coords, i, -1, this.team);
+                    }
                 }
             }
+            catch (IndexOutOfRangeException e)
+            {
+                return moveGrid;
+            }
+            
 
             return moveGrid;
         }

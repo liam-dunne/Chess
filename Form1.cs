@@ -18,6 +18,8 @@ namespace Official_Chess_Actual
         string selectedPieceTypeChar; //First character of the selected piece's name (e.g k for king)
         string selectedPieceTeamChar; //First character of the selected piece's team (e.g w for white
         string selectedPieceImageCode; //The 2 letter combination of the name character and team character which forms a key in the image dictionary
+
+        Color selectedColor;
         
         //Dictionary to give a short code for each image, the first letter representing the colour and the second representing the piece
         Dictionary<string, Image> images = new Dictionary<string, Image>()
@@ -126,25 +128,25 @@ namespace Official_Chess_Actual
         {
             for (int i = 0; i < 8; i++)
             {
-                grid[i, 6].BackgroundImage = images["bp"];
-                grid[i, 1].BackgroundImage = images["wp"];
+                grid[i, 6].Image = images["bp"];
+                grid[i, 1].Image = images["wp"];
             }
-            grid[0, 0].BackgroundImage = images["wr"]; //Loads all images accessed from a dictionary
-            grid[7, 0].BackgroundImage = images["wr"];
-            grid[1, 0].BackgroundImage = images["wn"];
-            grid[6, 0].BackgroundImage = images["wn"];
-            grid[2, 0].BackgroundImage = images["wb"];
-            grid[5, 0].BackgroundImage = images["wb"];
-            grid[3, 0].BackgroundImage = images["wq"];
-            grid[4, 0].BackgroundImage = images["wk"];
-            grid[0, 7].BackgroundImage = images["br"];
-            grid[7, 7].BackgroundImage = images["br"];
-            grid[1, 7].BackgroundImage = images["bn"];
-            grid[6, 7].BackgroundImage = images["bn"];
-            grid[2, 7].BackgroundImage = images["bb"];
-            grid[5, 7].BackgroundImage = images["bb"];
-            grid[3, 7].BackgroundImage = images["bq"];
-            grid[4, 7].BackgroundImage = images["bk"];
+            grid[0, 0].Image = images["wr"]; //Loads all images accessed from a dictionary
+            grid[7, 0].Image = images["wr"];
+            grid[1, 0].Image = images["wn"];
+            grid[6, 0].Image = images["wn"];
+            grid[2, 0].Image = images["wb"];
+            grid[5, 0].Image = images["wb"];
+            grid[3, 0].Image = images["wq"];
+            grid[4, 0].Image = images["wk"];
+            grid[0, 7].Image = images["br"];
+            grid[7, 7].Image = images["br"];
+            grid[1, 7].Image = images["bn"];
+            grid[6, 7].Image = images["bn"];
+            grid[2, 7].Image = images["bb"];
+            grid[5, 7].Image = images["bb"];
+            grid[3, 7].Image = images["bq"];
+            grid[4, 7].Image = images["bk"];
 
         }
             
@@ -153,7 +155,7 @@ namespace Official_Chess_Actual
                 Button button = (Button)sender; // Cast sender to button type
                 Point coords = getCoords(button); // Get the coordinates of the clicked button
 
-                
+
                 // If no piece selected, sets the selected piece to the one in the clicked square and finds possible moves
                 if (!pieceSelected & pieceGrid[coords.X, coords.Y] != null) 
                 {
@@ -164,9 +166,9 @@ namespace Official_Chess_Actual
                     selectedPieceTeamChar = selectedPieceTeam[0].ToString(); // Gives the first letter of the colour of the piece
                     selectedPieceType = selectedPiece.GetType().ToString();
 
-                    // Add a border around the selected piece
-                    button.FlatAppearance.BorderColor = Color.Black;
-                    button.FlatAppearance.BorderSize = 1;
+                    selectedColor = button.BackColor;
+                    button.BackColor = Color.PaleGoldenrod;
+
 
                 // Gives the first letter of the type of piece unless it is a knight which is represented by 'n'
                     if (selectedPieceType == "Official_Chess_Actual.Knight") 
@@ -180,7 +182,24 @@ namespace Official_Chess_Actual
                     selectedPieceImageCode = selectedPieceTeamChar + selectedPieceTypeChar; // Gives the 2 letter code corresponding to the key for the selected piece in the image dictionary
 
                     moveGrid = pieceGrid[selectedCoords.X, selectedCoords.Y].moveRules(selectedCoords);
-
+                    
+                    for (int i = 0; i < moveGrid.GetLength(0); i++)
+                    {
+                        for (int j = 0; j < moveGrid.GetLength(1); j++)
+                        {
+                            if (moveGrid[i, j] == 1)
+                            {
+                                grid[i, j].BackgroundImage = Resource1.grey_move_circle;
+                                grid[i, j].BackgroundImageLayout = ImageLayout.Center;
+                            }
+                            else if (moveGrid[i, j] == 2)
+                            {
+                                grid[i, j].BackgroundImage = Resource1.grey_capture_circle;
+                                grid[i, j].BackgroundImageLayout = ImageLayout.Center;
+                            }
+                        }
+                    }
+                    
                 }
                 // If the selected piece is clicked again, deselect it
                 else if (coords == selectedCoords)
@@ -188,28 +207,28 @@ namespace Official_Chess_Actual
                     selectedPiece.hasMoved = false;
                     pieceSelected = false;
                     selectedPiece = null;
-                    
-                    button.FlatAppearance.BorderSize = 0;
+                    button.BackColor = selectedColor;
+
+                grid = resetImages(grid);
                 }
 
             // If a move is legal, moves the piece to the new square and clears the old square
-            else if (pieceSelected & moveGrid[coords.X, coords.Y] == 1)  
+            else if (pieceSelected & new[] { 1, 2 }.Contains(moveGrid[coords.X, coords.Y]))  
                 {
-                    grid[selectedCoords.X, selectedCoords.Y].BackgroundImage = null; // Set old location's image to null
-                    grid[selectedCoords.X, selectedCoords.Y].FlatAppearance.BorderSize = 0;
+                    grid[selectedCoords.X, selectedCoords.Y].Image = null; // Set old location's image to null
+                grid = resetImages(grid);
 
-                    if (selectedPieceTeam == "white") //Places the correct colour piece based on selected piece colour
-                        grid[coords.X, coords.Y].BackgroundImage = images[selectedPieceImageCode];
+                if (selectedPieceTeam == "white") //Places the correct colour piece based on selected piece colour
+                        grid[coords.X, coords.Y].Image = images[selectedPieceImageCode];
                     else
-                        grid[coords.X, coords.Y].BackgroundImage = images[selectedPieceImageCode];
+                        grid[coords.X, coords.Y].Image = images[selectedPieceImageCode];
 
                     // Set new location's image to correct image and reset original location's image to null
                     pieceGrid[coords.X, coords.Y] = selectedPiece; 
                     pieceGrid[selectedCoords.X, selectedCoords.Y] = null; 
                     pieceSelected = false;
-                }
-
-                
+                    grid[selectedCoords.X, selectedCoords.Y].BackColor = selectedColor;
+                }     
             }
 
             // Divides the x and y coordinate by 80 to find the location within the board
@@ -219,5 +238,14 @@ namespace Official_Chess_Actual
                 int y = 7 - button.Location.Y / 80;
                 return new Point(x, y);
             }
+            
+        public Button[,] resetImages(Button[,] grid)
+        { 
+            foreach (Button button in grid)
+            {
+                button.BackgroundImage = null;
+            }
+            return grid;
         }
+    }
 }
