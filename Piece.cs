@@ -123,11 +123,55 @@ namespace Official_Chess_Actual
         public Knight(string Team) : base(Team)
         {
         }
+
+        public override int[,] moveRules(Point coords)
+        {
+            int x = coords.X;
+            int y = coords.Y;
+
+            if (CalculateMoves.moveIsValid(x + 1, y + 2))
+                moveGrid[x + 1, y + 2] = 1;
+            if (CalculateMoves.moveIsValid(x + 1, y - 2))
+                moveGrid[x + 1, y - 2] = 1;
+            if (CalculateMoves.moveIsValid(x + 2, y + 1))
+                moveGrid[x + 2, y + 1] = 1;
+            if (CalculateMoves.moveIsValid(x + 2, y - 1))
+                moveGrid[x + 2, y - 1] = 1;
+            if (CalculateMoves.moveIsValid(x - 1, y + 2))
+                moveGrid[x - 1, y + 2] = 1;
+            if (CalculateMoves.moveIsValid(x - 1, y - 2))
+                moveGrid[x - 1, y - 2] = 1;
+            if (CalculateMoves.moveIsValid(x - 2, y + 1))
+                moveGrid[x - 2, y + 1] = 1;
+            if (CalculateMoves.moveIsValid(x - 2, y - 1))
+                moveGrid[x - 2, y - 1] = 1;
+
+            moveGrid = CalculateMoves.canTake(moveGrid, this.team);
+
+            return moveGrid;
+        }
     }
     class Bishop : Piece
     {
         public Bishop(string Team) : base(Team)
         {
+        }
+        
+        public override int[,] moveRules(Point coords)
+        {
+            int x = coords.X;
+            int y = coords.Y;
+
+            for (int i = 1; i < 8; i++)
+            {
+                if (CalculateMoves.moveIsValid(x + i, y + i))
+                    if (Form1.pieceGrid[x + i, y + i] != null)
+                        break;
+                else
+                    moveGrid[x + i, y + i] = 1;
+
+            }
+            return moveGrid;
         }
     }
     class Rook : Piece
@@ -147,5 +191,34 @@ namespace Official_Chess_Actual
         public King(string Team) : base(Team)
         {
         }
+
+        // If a possible move contains an enemy piece, set to 2 but if it contains an ally piece, set to 0
+        
+
+        // Sets all possible moves to 1
+        public override int[,] moveRules(Point coords)
+        {
+            Array.Clear(moveGrid);
+
+            int x = coords.X;
+            int y = coords.Y;
+
+            for (int i = -1; i < 2; i+=2)
+            {
+                if (CalculateMoves.moveIsValid(x + i, y))
+                    moveGrid[x + i, y] = 1;
+                if (CalculateMoves.moveIsValid(x, y + i))
+                    moveGrid[x, y + i] = 1;
+                if (CalculateMoves.moveIsValid(x + i, y + i))
+                    moveGrid[x + i, y + i] = 1;
+                if (CalculateMoves.moveIsValid(x + i, y - i))
+                    moveGrid[x + i, y - i] = 1;
+            }
+
+            moveGrid = CalculateMoves.canTake(moveGrid, this.team);
+
+            return moveGrid;
+        }
+
     }
 }
