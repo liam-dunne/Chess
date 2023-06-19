@@ -15,6 +15,8 @@ namespace Official_Chess_Actual
 
         private bool _hasMoved = false;
         public bool hasMoved { get { return _hasMoved; } set { _hasMoved = value; } }
+
+
         public Piece(string Team)
         {
             team = Team;
@@ -34,7 +36,7 @@ namespace Official_Chess_Actual
         // Checks the diagonal squares to see if there is an enemy piece there, and if there is makes it a legal move
         private int[,] canTake(int[,] moveGrid, Point coords, int xDirection, int yDirection, string team)
         {
-            if (Form1.pieceGrid[coords.X+xDirection, coords.Y+yDirection] != null)
+            if (Form1.pieceGrid[coords.X+xDirection, coords.Y+yDirection] != null && CalculateMoves.moveIsValid(coords.X + xDirection, coords.Y+yDirection))
             {
                 if (Form1.pieceGrid[coords.X + xDirection, coords.Y + yDirection].team != team)
                 {
@@ -71,8 +73,8 @@ namespace Official_Chess_Actual
                 {
                     moveGrid[coords.X, coords.Y - steps] = 1;
                 }
-            }            
-            
+            }
+
             return moveGrid;
         }
 
@@ -89,8 +91,11 @@ namespace Official_Chess_Actual
                         {
                             moveGrid = moveForward(i, coords);
                         }
+                        else
+                        {
+                            moveGrid = moveForward(1, coords);
+                        }
                     }
-                    this.hasMoved = true;
                 }
                 else
                 {
@@ -113,7 +118,14 @@ namespace Official_Chess_Actual
             {
                 return moveGrid;
             }
-            
+            if (CalculateMoves.checksDone == 0)
+            {
+                CalculateMoves.checksDone = 1;
+                if (team == "white")
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords);
+                else
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords);
+            }
 
             return moveGrid;
         }
@@ -123,9 +135,12 @@ namespace Official_Chess_Actual
         public Knight(string Team) : base(Team)
         {
         }
-
+        
+        // Goes through each possible move for the knight and labels it with a 1 if it is in the range of the array
         public override int[,] moveRules(Point coords)
         {
+            Array.Clear(moveGrid);
+
             int x = coords.X;
             int y = coords.Y;
 
@@ -146,7 +161,16 @@ namespace Official_Chess_Actual
             if (CalculateMoves.moveIsValid(x - 2, y - 1))
                 moveGrid[x - 2, y - 1] = 1;
 
-            moveGrid = CalculateMoves.canTake(moveGrid, this.team);
+            moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
+
+            if (CalculateMoves.checksDone == 0)
+            {
+                CalculateMoves.checksDone = 1;
+                if (team == "white")
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords);
+                else
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords);
+            }
 
             return moveGrid;
         }
@@ -159,17 +183,24 @@ namespace Official_Chess_Actual
         
         public override int[,] moveRules(Point coords)
         {
+            Array.Clear(moveGrid);
+
             int x = coords.X;
             int y = coords.Y;
 
-            for (int i = 1; i < 8; i++)
-            {
-                if (CalculateMoves.moveIsValid(x + i, y + i))
-                    if (Form1.pieceGrid[x + i, y + i] != null)
-                        break;
-                else
-                    moveGrid[x + i, y + i] = 1;
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, 1, 1, coords);
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, 1, -1, coords);
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, -1, 1, coords);
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, -1, -1, coords);
 
+            moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
+            if (CalculateMoves.checksDone == 0)
+            {
+                CalculateMoves.checksDone = 1;
+                if (team == "white")
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords);
+                else
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords);
             }
             return moveGrid;
         }
@@ -179,12 +210,66 @@ namespace Official_Chess_Actual
         public Rook(string Team) : base(Team)
         {
         }
+
+        public override int[,] moveRules(Point coords)
+        {
+            Array.Clear(moveGrid);
+
+            int x = coords.X;
+            int y = coords.Y;
+
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, 1, 0, coords);
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, -1, 0, coords);
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, 0, 1, coords);
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, 0, -1, coords);
+
+            moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
+            if (CalculateMoves.checksDone == 0)
+            {
+                CalculateMoves.checksDone = 1;
+                if (team == "white")
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords);
+                else
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords);
+            }
+            return moveGrid;
+        }
     }
     class Queen : Piece
     {
         public Queen(string Team) : base(Team)
         {
         }
+
+        public override int[,] moveRules(Point coords)
+        {
+            Array.Clear(moveGrid);
+
+            int x = coords.X;
+            int y = coords.Y;
+
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, 1, 0, coords);
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, -1, 0, coords);
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, 0, 1, coords);
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, 0, -1, coords);
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, 1, 1, coords);
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, 1, -1, coords);
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, -1, 1, coords);
+            moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, -1, -1, coords);
+
+            moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
+            if (CalculateMoves.checksDone == 0)
+            {
+                CalculateMoves.checksDone = 1;
+                if (team == "white")
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords);
+                else
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords);
+            }
+            return moveGrid;
+
+        }
+
     }
     class King : Piece
     {
@@ -215,8 +300,15 @@ namespace Official_Chess_Actual
                     moveGrid[x + i, y - i] = 1;
             }
 
-            moveGrid = CalculateMoves.canTake(moveGrid, this.team);
-
+            moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
+            if (CalculateMoves.checksDone == 0)
+            {
+                CalculateMoves.checksDone = 1;
+                if (team == "white")
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords);
+                else
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords);
+            }
             return moveGrid;
         }
 

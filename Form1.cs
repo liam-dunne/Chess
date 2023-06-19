@@ -23,6 +23,9 @@ namespace Official_Chess_Actual
 
         Color selectedColor;
 
+        public static Point whiteKingLocation = new Point(4, 0);
+        public static Point blackKingLocation = new Point(4, 7);
+
         //Dictionary to give a short code for each image, the first letter representing the colour and the second representing the piece
         Dictionary<string, Image> images = new Dictionary<string, Image>()
         {
@@ -83,7 +86,7 @@ namespace Official_Chess_Actual
                     newButton.FlatStyle = FlatStyle.Flat;
                     newButton.Click += new EventHandler(squareClick);
                     // Set background colour
-                    if ((i + j) % 2 == 1)
+                    if ((i + j) % 2 == 0)
                     {
                         newButton.BackColor = Color.DarkOliveGreen;
                     }
@@ -208,38 +211,51 @@ namespace Official_Chess_Actual
 
 
 
-                    // If the selected piece is clicked again, deselect it
-                    else if (coords == selectedCoords)
-                    {
-                        selectedPiece.hasMoved = false;
-                        pieceSelected = false;
-                        selectedPiece = null;
-                        button.BackColor = selectedColor;
+            // If the selected piece is clicked again, deselect it
+            else if (coords == selectedCoords)
+            {
 
-                        grid = resetImages(grid);
-                    }
+                pieceSelected = false;
+                selectedPiece = null;
+                button.BackColor = selectedColor;
 
-                    // If a move is legal, moves the piece to the new square and clears the old square and changes the turn
-                    else if (pieceSelected & new[] { 1, 2 }.Contains(moveGrid[coords.X, coords.Y]))
-                    {
-                        grid[selectedCoords.X, selectedCoords.Y].Image = null; // Set old location's image to null
-                        grid = resetImages(grid);
+                grid = resetImages(grid);
+            }
 
-                        if (selectedPieceTeam == "white") //Places the correct colour piece based on selected piece colour
-                            grid[coords.X, coords.Y].Image = images[selectedPieceImageCode];
-                        else
-                            grid[coords.X, coords.Y].Image = images[selectedPieceImageCode];
+            // If a move is legal, moves the piece to the new square and clears the old square and changes the turn
+            else if (pieceSelected & new[] { 1, 2 }.Contains(moveGrid[coords.X, coords.Y]))
+            {
+                selectedPiece.hasMoved = true;
 
-                        // Set new location's image to correct image and reset original location's image to null
-                        pieceGrid[coords.X, coords.Y] = selectedPiece;
-                        pieceGrid[selectedCoords.X, selectedCoords.Y] = null;
-                        pieceSelected = false;
-                        grid[selectedCoords.X, selectedCoords.Y].BackColor = selectedColor;
-                        if (turn == "white")
-                            turn = "black";
-                        else if (turn == "black")
-                            turn = "white";
-                    }  
+                grid[selectedCoords.X, selectedCoords.Y].Image = null; // Set old location's image to null
+                grid = resetImages(grid);
+
+                if (selectedPieceTeam == "white") //Places the correct colour piece based on selected piece colour
+                    grid[coords.X, coords.Y].Image = images[selectedPieceImageCode];
+                else
+                    grid[coords.X, coords.Y].Image = images[selectedPieceImageCode];
+
+                // Set new location's image to correct image and reset original location's image to null
+                pieceGrid[coords.X, coords.Y] = selectedPiece;
+                pieceGrid[selectedCoords.X, selectedCoords.Y] = null;
+                pieceSelected = false;
+                grid[selectedCoords.X, selectedCoords.Y].BackColor = selectedColor;
+                        
+                if (selectedPieceTypeChar == "k")
+                {
+                    if (selectedPieceTeam == "white")
+                        whiteKingLocation = new Point(coords.X, coords.Y);
+                    else
+                        blackKingLocation = new Point(coords.X, coords.Y);
+                }
+                
+                if (turn == "white")
+                    turn = "black";
+                else if (turn == "black")
+                    turn = "white";
+
+                System.Diagnostics.Debug.WriteLine(CalculateMoves.isCheck(selectedPieceTeam, pieceGrid));
+            }  
         }
         // Divides the x and y coordinate by 80 to find the location within the board
         public Point getCoords(Button button)
