@@ -8,8 +8,8 @@ namespace Official_Chess_Actual
 {
     internal class CalculateMoves
     {
-        public static int checksDone = 0;
 
+        public static bool countsAsMove = true;
 
         public int[,] calculateMoves()
         {
@@ -76,6 +76,7 @@ namespace Official_Chess_Actual
             return moveGrid;
         }
 
+        // For every square on the board, if the location of the opposing king is in the piece at that square's moveGrid, return true, else false 
         public static bool isCheck(string team, Piece[,] grid)
         {
             int[,] testGrid = new int[8, 8];
@@ -88,7 +89,7 @@ namespace Official_Chess_Actual
                         if (grid[i, j].team == team)
                         {
                             Point coords = new Point(i, j);
-                            testGrid = grid[i, j].moveRules(coords);
+                            testGrid = grid[i, j].moveRules(coords, false);
                             if (team == "black")
                             {
                                 if (testGrid[Form1.whiteKingLocation.X, Form1.whiteKingLocation.Y] == 2)
@@ -105,24 +106,64 @@ namespace Official_Chess_Actual
             return false;
         }
 
-        public static int[,] causesCheck(int[,] grid, string team, Point coords)
+        // For every square on the board, if the square is a legal move in the given moveGrid, create a new board with the piece moved to that square
+        // If in this position the moving team is in check, disallow the move.
+        public static int[,] causesCheck(int[,] moveGrid, string team, Point coords, Piece[,] pieceGrid)
         {
-            Piece[,] testPieceGrid = Form1.pieceGrid;
+            countsAsMove = false;
+            
             for (int i = 0; i <= 7; i++)
             {
                 for (int j = 0; j <= 7; j++)
                 {
-                    if (new[] { 1, 2 }.Contains(grid[i, j]))
-                        testPieceGrid = Form1.pieceGrid;
-                        testPieceGrid[i, j] = Form1.pieceGrid[coords.X, coords.Y];
-                        testPieceGrid[coords.X, coords.Y] = null;
-                        if (isCheck(team, testPieceGrid))
+                    if (new[] { 1, 2 }.Contains(moveGrid[i, j]))
+                    {
+                        Point tempKingLocation = new Point(0, 0);
+                        Piece? temp = pieceGrid[i, j];
+                        pieceGrid[i, j] = pieceGrid[coords.X, coords.Y];
+                        pieceGrid[coords.X, coords.Y] = null;
+                        if (pieceGrid[i, j] != null)
                         {
-                            grid[i, j] = 0;
+                            if (pieceGrid[i, j].GetType() == typeof(King))
+                            {
+                                if (pieceGrid[i, j].team == "white")
+                                {
+                                    tempKingLocation = Form1.whiteKingLocation;
+                                    Form1.whiteKingLocation = new Point(i, j);
+                                }
+                                else
+                                {
+                                    tempKingLocation = Form1.blackKingLocation;
+                                    Form1.blackKingLocation = new Point(i, j);
+                                }
+                            }
                         }
+                        if (isCheck(team, pieceGrid))
+                        {
+                            moveGrid[i, j] = 0;
+                        }
+                        pieceGrid[coords.X, coords.Y] = pieceGrid[i, j];
+                        pieceGrid[i, j] = temp;
+                        if (pieceGrid[coords.X, coords.Y] != null)
+                        {
+                            if (pieceGrid[coords.X, coords.Y].GetType() == typeof(King))
+                            {
+                                if (pieceGrid[coords.X, coords.Y].team == "white")
+                                {
+                                    Form1.whiteKingLocation = tempKingLocation;
+                                }
+                                else
+                                {
+                                    Form1.blackKingLocation = tempKingLocation;
+                                }
+                            }
+                        }
+                    
+                    }
                 }
             }
-            return grid;
+            countsAsMove = true;
+            return moveGrid;
         }
     }
 }

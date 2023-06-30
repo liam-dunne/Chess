@@ -6,6 +6,19 @@ using System.Threading.Tasks;
 
 namespace Official_Chess_Actual
 {
+
+    /*
+
+
+    
+
+        ADD CHECKMATE USING CANMOVE VARIABLE AND KING MOVE FUNCTION
+
+
+
+
+
+    */ 
     public class Piece
     {
         public string team;
@@ -16,12 +29,14 @@ namespace Official_Chess_Actual
         private bool _hasMoved = false;
         public bool hasMoved { get { return _hasMoved; } set { _hasMoved = value; } }
 
+        private bool _canMove = false;
+        public bool canMove { get { return _canMove; } set { _canMove = value; } }
 
         public Piece(string Team)
         {
             team = Team;
         }
-        public virtual int[,] moveRules(Point coords)
+        public virtual int[,] moveRules(Point coords, bool check)
         {
             return moveGrid;
         }
@@ -36,11 +51,14 @@ namespace Official_Chess_Actual
         // Checks the diagonal squares to see if there is an enemy piece there, and if there is makes it a legal move
         private int[,] canTake(int[,] moveGrid, Point coords, int xDirection, int yDirection, string team)
         {
-            if (Form1.pieceGrid[coords.X+xDirection, coords.Y+yDirection] != null && CalculateMoves.moveIsValid(coords.X + xDirection, coords.Y+yDirection))
+            if (CalculateMoves.moveIsValid(coords.X + xDirection, coords.Y + yDirection))
             {
-                if (Form1.pieceGrid[coords.X + xDirection, coords.Y + yDirection].team != team)
+                if (Form1.pieceGrid[coords.X + xDirection, coords.Y + yDirection] != null)
                 {
-                    moveGrid[coords.X + xDirection, coords.Y + yDirection] = 2;
+                    if (Form1.pieceGrid[coords.X + xDirection, coords.Y + yDirection].team != team)
+                    {
+                        moveGrid[coords.X + xDirection, coords.Y + yDirection] = 2;
+                    }
                 }
             }
             return moveGrid;
@@ -51,38 +69,42 @@ namespace Official_Chess_Actual
         {
             if (team == "white") //Allows the pawn to move 1 square forwards 
             {
-                if (Form1.pieceGrid[coords.X, coords.Y + steps] != null)
+                if (CalculateMoves.moveIsValid(coords.X, coords.Y + steps))
                 {
-                    this.isBlocked = true;
-                    return moveGrid;
+                    if (Form1.pieceGrid[coords.X, coords.Y + steps] != null)
+                    {
+                        this.isBlocked = true;
+                        return moveGrid;
+                    }
+                    else
+                    {
+                        moveGrid[coords.X, coords.Y + steps] = 1;
+                    }
                 }
-                else
-                {
-                    moveGrid[coords.X, coords.Y + steps] = 1;
-                }
-
             }
             else if (team == "black")
             {
-                if (Form1.pieceGrid[coords.X, coords.Y - steps] != null)
+                if (CalculateMoves.moveIsValid(coords.X, coords.Y - steps))
                 {
-                    this.isBlocked = true;
-                    return moveGrid;
-                }
-                else
-                {
-                    moveGrid[coords.X, coords.Y - steps] = 1;
+                    if (Form1.pieceGrid[coords.X, coords.Y - steps] != null)
+                    {
+                        this.isBlocked = true;
+                        return moveGrid;
+                    }
+                    else
+                    {
+                        moveGrid[coords.X, coords.Y - steps] = 1;
+                    }
                 }
             }
 
             return moveGrid;
         }
 
-        public override int[,] moveRules(Point coords) // Returns an array with '1' in the squares where a move can be made
+        public override int[,] moveRules(Point coords, bool check) // Returns an array with '1' in the squares where a move can be made
         {
             Array.Clear(moveGrid);
-            try 
-            {
+
                 if (hasMoved == false)
                 {
                     for (int i = 1; i < 3; i++) // Can move twice if the pawn hasn't moved yet
@@ -102,6 +124,7 @@ namespace Official_Chess_Actual
                     moveGrid = moveForward(1, coords);
                 }
 
+                // Check for pieces diagonally
                 for (int i = -1; i < 2; i += 2)
                 {
                     if (team == "white")
@@ -113,19 +136,17 @@ namespace Official_Chess_Actual
                         moveGrid = canTake(moveGrid, coords, i, -1, this.team);
                     }
                 }
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                return moveGrid;
-            }
-            if (CalculateMoves.checksDone == 0)
-            {
-                CalculateMoves.checksDone = 1;
+            
+                // If in check, test each move to see if the king is still in check after it. If so, disallow the move
+            if (check)
+            {             
                 if (team == "white")
-                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords);
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords, Form1.pieceGrid);
                 else
-                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords);
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords, Form1.pieceGrid);
             }
+
+            this.isBlocked = false;
 
             return moveGrid;
         }
@@ -137,7 +158,7 @@ namespace Official_Chess_Actual
         }
         
         // Goes through each possible move for the knight and labels it with a 1 if it is in the range of the array
-        public override int[,] moveRules(Point coords)
+        public override int[,] moveRules(Point coords, bool check)
         {
             Array.Clear(moveGrid);
 
@@ -162,14 +183,13 @@ namespace Official_Chess_Actual
                 moveGrid[x - 2, y - 1] = 1;
 
             moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
-
-            if (CalculateMoves.checksDone == 0)
+            // If in check, test each move to see if the king is still in check after it. If so, disallow the move
+            if (check)
             {
-                CalculateMoves.checksDone = 1;
                 if (team == "white")
-                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords);
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords, Form1.pieceGrid);
                 else
-                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords);
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords, Form1.pieceGrid);
             }
 
             return moveGrid;
@@ -181,7 +201,7 @@ namespace Official_Chess_Actual
         {
         }
         
-        public override int[,] moveRules(Point coords)
+        public override int[,] moveRules(Point coords, bool check)
         {
             Array.Clear(moveGrid);
 
@@ -194,13 +214,13 @@ namespace Official_Chess_Actual
             moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, -1, -1, coords);
 
             moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
-            if (CalculateMoves.checksDone == 0)
+            // If in check, test each move to see if the king is still in check after it. If so, disallow the move
+            if (check)
             {
-                CalculateMoves.checksDone = 1;
                 if (team == "white")
-                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords);
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords, Form1.pieceGrid);
                 else
-                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords);
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords, Form1.pieceGrid);
             }
             return moveGrid;
         }
@@ -211,7 +231,7 @@ namespace Official_Chess_Actual
         {
         }
 
-        public override int[,] moveRules(Point coords)
+        public override int[,] moveRules(Point coords, bool check)
         {
             Array.Clear(moveGrid);
 
@@ -224,13 +244,13 @@ namespace Official_Chess_Actual
             moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, 0, -1, coords);
 
             moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
-            if (CalculateMoves.checksDone == 0)
+            // If in check, test each move to see if the king is still in check after it. If so, disallow the move
+            if (check)
             {
-                CalculateMoves.checksDone = 1;
                 if (team == "white")
-                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords);
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords, Form1.pieceGrid);
                 else
-                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords);
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords, Form1.pieceGrid);
             }
             return moveGrid;
         }
@@ -241,7 +261,7 @@ namespace Official_Chess_Actual
         {
         }
 
-        public override int[,] moveRules(Point coords)
+        public override int[,] moveRules(Point coords, bool check)
         {
             Array.Clear(moveGrid);
 
@@ -258,13 +278,13 @@ namespace Official_Chess_Actual
             moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, -1, -1, coords);
 
             moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
-            if (CalculateMoves.checksDone == 0)
+            // If in check, test each move to see if the king is still in check after it. If so, disallow the move
+            if (check)
             {
-                CalculateMoves.checksDone = 1;
                 if (team == "white")
-                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords);
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords, Form1.pieceGrid);
                 else
-                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords);
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords, Form1.pieceGrid);
             }
             return moveGrid;
 
@@ -281,7 +301,7 @@ namespace Official_Chess_Actual
         
 
         // Sets all possible moves to 1
-        public override int[,] moveRules(Point coords)
+        public override int[,] moveRules(Point coords, bool check)
         {
             Array.Clear(moveGrid);
 
@@ -301,13 +321,13 @@ namespace Official_Chess_Actual
             }
 
             moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
-            if (CalculateMoves.checksDone == 0)
+            // If in check, test each move to see if the king is still in check after it. If so, disallow the move
+            if (check)
             {
-                CalculateMoves.checksDone = 1;
                 if (team == "white")
-                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords);
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords, Form1.pieceGrid);
                 else
-                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords);
+                    moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords, Form1.pieceGrid);
             }
             return moveGrid;
         }

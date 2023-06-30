@@ -188,8 +188,9 @@ namespace Official_Chess_Actual
                         }
                         selectedPieceImageCode = selectedPieceTeamChar + selectedPieceTypeChar; // Gives the 2 letter code corresponding to the key for the selected piece in the image dictionary
 
-                        moveGrid = pieceGrid[selectedCoords.X, selectedCoords.Y].moveRules(selectedCoords);
+                        moveGrid = pieceGrid[selectedCoords.X, selectedCoords.Y].moveRules(selectedCoords, true);
 
+                        // For each possible move, if it is a capture circle the piece else display a smaller circle
                         for (int i = 0; i < moveGrid.GetLength(0); i++)
                         {
                             for (int j = 0; j < moveGrid.GetLength(1); j++)
@@ -206,6 +207,9 @@ namespace Official_Chess_Actual
                                 }
                             }
                         }
+                    System.Diagnostics.Debug.WriteLine(selectedPiece.hasMoved);
+                    if (pieceGrid[3,4] != null)
+                        System.Diagnostics.Debug.WriteLine(pieceGrid[3,4].GetType().ToString());
                     }
                 }
 
@@ -225,7 +229,8 @@ namespace Official_Chess_Actual
             // If a move is legal, moves the piece to the new square and clears the old square and changes the turn
             else if (pieceSelected & new[] { 1, 2 }.Contains(moveGrid[coords.X, coords.Y]))
             {
-                selectedPiece.hasMoved = true;
+                if (CalculateMoves.countsAsMove)
+                    selectedPiece.hasMoved = true;
 
                 grid[selectedCoords.X, selectedCoords.Y].Image = null; // Set old location's image to null
                 grid = resetImages(grid);
@@ -240,7 +245,38 @@ namespace Official_Chess_Actual
                 pieceGrid[selectedCoords.X, selectedCoords.Y] = null;
                 pieceSelected = false;
                 grid[selectedCoords.X, selectedCoords.Y].BackColor = selectedColor;
-                        
+
+                // Set background colour of king to red if in check
+                if (CalculateMoves.isCheck(selectedPieceTeam, pieceGrid))
+                {
+                    if (selectedPieceTeam == "white")
+                        grid[blackKingLocation.X, blackKingLocation.Y].BackColor = Color.IndianRed;
+                    else
+                        grid[whiteKingLocation.X, whiteKingLocation.Y].BackColor = Color.IndianRed;
+                    
+
+                }
+
+                // If not in check reset king's colour to its default
+                else
+                {
+                    if (selectedPieceTeam == "white")
+                    {
+                        if ((whiteKingLocation.X + whiteKingLocation.Y) % 2 == 0)
+                            grid[whiteKingLocation.X, whiteKingLocation.Y].BackColor = Color.DarkOliveGreen;
+                        else
+                            grid[whiteKingLocation.X, whiteKingLocation.Y].BackColor = Color.PapayaWhip;
+                    }
+                    if (selectedPieceTeam == "black")
+                    {
+                        if ((blackKingLocation.X + blackKingLocation.Y) % 2 == 0)
+                            grid[blackKingLocation.X, blackKingLocation.Y].BackColor = Color.DarkOliveGreen;
+                        else
+                            grid[blackKingLocation.X, blackKingLocation.Y].BackColor = Color.PapayaWhip;
+                    }
+                }
+
+                // If moved piece was a king, update the variable storing its location
                 if (selectedPieceTypeChar == "k")
                 {
                     if (selectedPieceTeam == "white")
@@ -249,13 +285,17 @@ namespace Official_Chess_Actual
                         blackKingLocation = new Point(coords.X, coords.Y);
                 }
                 
+                // Change turn
                 if (turn == "white")
                     turn = "black";
                 else if (turn == "black")
                     turn = "white";
 
-                System.Diagnostics.Debug.WriteLine(CalculateMoves.isCheck(selectedPieceTeam, pieceGrid));
-            }  
+
+
+
+            }
+
         }
         // Divides the x and y coordinate by 80 to find the location within the board
         public Point getCoords(Button button)
