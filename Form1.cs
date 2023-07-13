@@ -6,7 +6,7 @@ namespace Official_Chess_Actual
     {
         bool pieceSelected = false; // Whether or not a piece is selected
         Piece? selectedPiece; // The currently selected piece
-        Point selectedCoords;
+        Point selectedCoords;       
 
         string turn = "white";
 
@@ -66,7 +66,7 @@ namespace Official_Chess_Actual
 
 
             // Set size and location of panel within form
-            //board.Location = new Point(220, 20);
+            board.Location = new Point(220, 20);
             board.Size = new Size(640, 640);
             board.Location = new Point(20, 20);
 
@@ -131,7 +131,7 @@ namespace Official_Chess_Actual
 
         public void displayImages()
         {
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 8; i++) //Loads pawns from dictionary
             {
                 grid[i, 6].Image = images["bp"];
                 grid[i, 1].Image = images["wp"];
@@ -160,58 +160,58 @@ namespace Official_Chess_Actual
             Button button = (Button)sender; // Cast sender to button type
             Point coords = getCoords(button); // Get the coordinates of the clicked button
 
-            
-                // If no piece selected, sets the selected piece to the one in the clicked square and finds possible moves
-                if (!pieceSelected & pieceGrid[coords.X, coords.Y] != null)
+
+            // If no piece selected, sets the selected piece to the one in the clicked square and finds possible moves
+            if (!pieceSelected & pieceGrid[coords.X, coords.Y] != null)
+            {
+                if (pieceGrid[coords.X, coords.Y].team == turn)
                 {
-                    if (pieceGrid[coords.X, coords.Y].team == turn)
+                    selectedPiece = pieceGrid[coords.X, coords.Y]; // Selects the piece at the clicked square
+                    selectedCoords = coords; // Stores the location of the selected piece for later
+                    pieceSelected = true;
+                    selectedPieceTeam = selectedPiece.team;
+                    selectedPieceTeamChar = selectedPieceTeam[0].ToString(); // Gives the first letter of the colour of the piece
+                    selectedPieceType = selectedPiece.GetType().ToString();
+
+                    selectedColor = button.BackColor;
+                    button.BackColor = Color.PaleGoldenrod;
+
+
+                    // Gives the first letter of the type of piece unless it is a knight which is represented by 'n'
+                    if (selectedPieceType == "Official_Chess_Actual.Knight")
                     {
-                        selectedPiece = pieceGrid[coords.X, coords.Y]; // Selects the piece at the clicked square
-                        selectedCoords = coords; // Stores the location of the selected piece for later
-                        pieceSelected = true;
-                        selectedPieceTeam = selectedPiece.team;
-                        selectedPieceTeamChar = selectedPieceTeam[0].ToString(); // Gives the first letter of the colour of the piece
-                        selectedPieceType = selectedPiece.GetType().ToString();
+                        selectedPieceTypeChar = "n";
+                    }
+                    else
+                    {
+                        selectedPieceTypeChar = selectedPieceType.ToLower()[22].ToString();
+                    }
+                    selectedPieceImageCode = selectedPieceTeamChar + selectedPieceTypeChar; // Gives the 2 letter code corresponding to the key for the selected piece in the image dictionary
 
-                        selectedColor = button.BackColor;
-                        button.BackColor = Color.PaleGoldenrod;
+                    moveGrid = pieceGrid[selectedCoords.X, selectedCoords.Y].moveRules(selectedCoords, true);
 
-
-                        // Gives the first letter of the type of piece unless it is a knight which is represented by 'n'
-                        if (selectedPieceType == "Official_Chess_Actual.Knight")
+                    // For each possible move, if it is a capture circle the piece else display a smaller circle
+                    for (int i = 0; i < moveGrid.GetLength(0); i++)
+                    {
+                        for (int j = 0; j < moveGrid.GetLength(1); j++)
                         {
-                            selectedPieceTypeChar = "n";
-                        }
-                        else
-                        {
-                            selectedPieceTypeChar = selectedPieceType.ToLower()[22].ToString();
-                        }
-                        selectedPieceImageCode = selectedPieceTeamChar + selectedPieceTypeChar; // Gives the 2 letter code corresponding to the key for the selected piece in the image dictionary
-
-                        moveGrid = pieceGrid[selectedCoords.X, selectedCoords.Y].moveRules(selectedCoords, true);
-
-                        // For each possible move, if it is a capture circle the piece else display a smaller circle
-                        for (int i = 0; i < moveGrid.GetLength(0); i++)
-                        {
-                            for (int j = 0; j < moveGrid.GetLength(1); j++)
+                            if (moveGrid[i, j] == 1)
                             {
-                                if (moveGrid[i, j] == 1)
-                                {
-                                    grid[i, j].BackgroundImage = Resource1.grey_move_circle;
-                                    grid[i, j].BackgroundImageLayout = ImageLayout.Center;
-                                }
-                                else if (moveGrid[i, j] == 2)
-                                {
-                                    grid[i, j].BackgroundImage = Resource1.grey_capture_circle;
-                                    grid[i, j].BackgroundImageLayout = ImageLayout.Center;
-                                }
+                                grid[i, j].BackgroundImage = Resource1.grey_move_circle;
+                                grid[i, j].BackgroundImageLayout = ImageLayout.Center;
+                            }
+                            else if (moveGrid[i, j] == 2)
+                            {
+                                grid[i, j].BackgroundImage = Resource1.grey_capture_circle;
+                                grid[i, j].BackgroundImageLayout = ImageLayout.Center;
                             }
                         }
-                    System.Diagnostics.Debug.WriteLine(selectedPiece.hasMoved);
-                    if (pieceGrid[3,4] != null)
-                        System.Diagnostics.Debug.WriteLine(pieceGrid[3,4].GetType().ToString());
                     }
+                    System.Diagnostics.Debug.WriteLine(selectedPiece.hasMoved);
+                    if (pieceGrid[3, 4] != null)
+                        System.Diagnostics.Debug.WriteLine(pieceGrid[3, 4].GetType().ToString());
                 }
+            }
 
 
 
@@ -250,10 +250,41 @@ namespace Official_Chess_Actual
                 if (CalculateMoves.isCheck(selectedPieceTeam, pieceGrid))
                 {
                     if (selectedPieceTeam == "white")
+                    {
                         grid[blackKingLocation.X, blackKingLocation.Y].BackColor = Color.IndianRed;
+                        selectedPiece = pieceGrid[blackKingLocation.X, blackKingLocation.Y];
+                        moveGrid = selectedPiece.moveRules(blackKingLocation, true);
+
+                        for (int i = 0; i < 8; i++)
+                            for (int j = 0; j < 8; j++)
+                                if (new[] { 1, 2 }.Contains(moveGrid[i, j]))
+                                {
+                                    selectedPiece.canMove = true;
+                                }
+                        if (selectedPiece.canMove == false)
+                        {                            
+                            Checkmate.CheckMate();
+                        }
+                    }
                     else
+                    {
                         grid[whiteKingLocation.X, whiteKingLocation.Y].BackColor = Color.IndianRed;
-                    
+                        
+                        selectedPiece = pieceGrid[whiteKingLocation.X, whiteKingLocation.Y];
+                        moveGrid = selectedPiece.moveRules(whiteKingLocation, true);
+
+                        for (int i = 0; i < 8; i++)
+                            for (int j = 0; j < 8; j++)
+                                if (new[] { 1, 2 }.Contains(moveGrid[i, j]))
+                                {
+                                    selectedPiece.canMove = true;
+                                }
+                        if (selectedPiece.canMove == false)
+                        {                            
+                            Checkmate.CheckMate();
+                        }
+                    }
+
 
                 }
 

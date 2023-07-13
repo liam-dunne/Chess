@@ -303,6 +303,7 @@ namespace Official_Chess_Actual
         // Sets all possible moves to 1
         public override int[,] moveRules(Point coords, bool check)
         {
+            this.canMove = false;
             Array.Clear(moveGrid);
 
             int x = coords.X;
