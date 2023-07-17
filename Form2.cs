@@ -16,12 +16,16 @@ namespace Official_Chess_Actual
         {
             InitializeComponent();
             BackColor = Color.FromArgb(41, 44, 51);
-            TextBox checkMateBox = new TextBox();
+            Label checkMateBox = new Label();
             checkMateBox.Text = "Checkmate!";
-            checkMateBox.TextAlign = HorizontalAlignment.Center;
-            checkMateBox.Location = new Point((this.Width / 2 - checkMateBox.Width / 2), (this.Height / 2 - checkMateBox.Height));
+            checkMateBox.TextAlign = ContentAlignment.MiddleCenter;
+            checkMateBox.Font = new Font("Comic Sans MS", 72);
+            checkMateBox.ForeColor = Color.White;
+            checkMateBox.Dock = DockStyle.Fill;
+            checkMateBox.Size = new Size(400, 200);
+            checkMateBox.Location = new Point((Width / 2 - checkMateBox.Width / 2), (Height / 2 - checkMateBox.Height / 2));
             System.Diagnostics.Debug.WriteLine(checkMateBox.Location);
-            System.Diagnostics.Debug.WriteLine(this.Size);
+            System.Diagnostics.Debug.WriteLine(Size);
             Controls.Add(checkMateBox);
         }
 

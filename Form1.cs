@@ -247,45 +247,13 @@ namespace Official_Chess_Actual
                 grid[selectedCoords.X, selectedCoords.Y].BackColor = selectedColor;
 
                 // Set background colour of king to red if in check
+                // Also if it is check, check if it is checkmate
                 if (CalculateMoves.isCheck(selectedPieceTeam, pieceGrid))
-                {
-                    if (selectedPieceTeam == "white")
+                {                    
+                    if (Checkmate.isCheckmate(selectedPiece, selectedPieceTeam, grid, moveGrid, pieceGrid))
                     {
-                        grid[blackKingLocation.X, blackKingLocation.Y].BackColor = Color.IndianRed;
-                        selectedPiece = pieceGrid[blackKingLocation.X, blackKingLocation.Y];
-                        moveGrid = selectedPiece.moveRules(blackKingLocation, true);
-
-                        for (int i = 0; i < 8; i++)
-                            for (int j = 0; j < 8; j++)
-                                if (new[] { 1, 2 }.Contains(moveGrid[i, j]))
-                                {
-                                    selectedPiece.canMove = true;
-                                }
-                        if (selectedPiece.canMove == false)
-                        {                            
-                            Checkmate.CheckMate();
-                        }
+                        Checkmate.CheckMate();
                     }
-                    else
-                    {
-                        grid[whiteKingLocation.X, whiteKingLocation.Y].BackColor = Color.IndianRed;
-                        
-                        selectedPiece = pieceGrid[whiteKingLocation.X, whiteKingLocation.Y];
-                        moveGrid = selectedPiece.moveRules(whiteKingLocation, true);
-
-                        for (int i = 0; i < 8; i++)
-                            for (int j = 0; j < 8; j++)
-                                if (new[] { 1, 2 }.Contains(moveGrid[i, j]))
-                                {
-                                    selectedPiece.canMove = true;
-                                }
-                        if (selectedPiece.canMove == false)
-                        {                            
-                            Checkmate.CheckMate();
-                        }
-                    }
-
-
                 }
 
                 // If not in check reset king's colour to its default
@@ -344,5 +312,7 @@ namespace Official_Chess_Actual
             }
             return grid;
         }
+
+        
     }
 }
