@@ -230,10 +230,31 @@ namespace Official_Chess_Actual
             else if (pieceSelected & new[] { 1, 2 }.Contains(moveGrid[coords.X, coords.Y]))
             {
                 if (CalculateMoves.countsAsMove)
+                {
                     selectedPiece.hasMoved = true;
+                    
+                    
+                    if (selectedPiece.GetType() == typeof(King))
+                    {
+                        if (coords.X == selectedCoords.X + 2 && coords.Y == selectedCoords.Y) // Move the rook left of the king
+                        {
+                            Piece rookToCastle = pieceGrid[selectedCoords.X + 3, selectedCoords.Y];
+                            if (rookToCastle.GetType() == typeof(Rook))
+                            {
+                                pieceGrid[coords.X - 1, coords.Y] = rookToCastle;
+                                pieceGrid[selectedCoords.X + 3, selectedCoords.Y] = null;
+                                grid[coords.X + 1, coords.Y].Image = null;
+                                string rookImageCode = selectedPieceTeamChar + "r";
+                                grid[coords.X - 1, coords.Y].Image = images[rookImageCode];
+                                rookToCastle.hasMoved = true;
+                            }
+                        }
+                    }
+                }
+                
 
                 grid[selectedCoords.X, selectedCoords.Y].Image = null; // Set old location's image to null
-                grid = resetImages(grid);
+                grid = resetImages(grid); // Removes all movement circles
 
                 if (selectedPieceTeam == "white") //Places the correct colour piece based on selected piece colour
                     grid[coords.X, coords.Y].Image = images[selectedPieceImageCode];

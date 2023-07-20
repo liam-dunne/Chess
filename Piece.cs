@@ -227,6 +227,7 @@ namespace Official_Chess_Actual
     }
     class Rook : Piece
     {
+        public bool canCastle = true;
         public Rook(string Team) : base(Team)
         {
         }
@@ -293,12 +294,15 @@ namespace Official_Chess_Actual
     }
     class King : Piece
     {
+        public bool canCastle = true;
         public King(string Team) : base(Team)
         {
         }
 
-        // If a possible move contains an enemy piece, set to 2 but if it contains an ally piece, set to 0
         
+        
+        
+        // If a possible move contains an enemy piece, set to 2 but if it contains an ally piece, set to 0
 
         // Sets all possible moves to 1
         public override int[,] moveRules(Point coords, bool check)
@@ -322,13 +326,21 @@ namespace Official_Chess_Actual
             }
 
             moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
+
+            
             // If in check, test each move to see if the king is still in check after it. If so, disallow the move
             if (check)
             {
                 if (team == "white")
+                {
+                    moveGrid = CalculateMoves.canCastle(coords, moveGrid, "black");
                     moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords, Form1.pieceGrid);
+                }
                 else
+                {
+                    moveGrid = CalculateMoves.canCastle(coords, moveGrid, "white");
                     moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords, Form1.pieceGrid);
+                }
             }
             return moveGrid;
         }

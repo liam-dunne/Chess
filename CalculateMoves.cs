@@ -120,8 +120,8 @@ namespace Official_Chess_Actual
                     {
                         Point tempKingLocation = new Point(0, 0);
                         Piece? temp = pieceGrid[i, j];
-                        pieceGrid[i, j] = pieceGrid[coords.X, coords.Y];
-                        pieceGrid[coords.X, coords.Y] = null;
+                        pieceGrid[i, j] = pieceGrid[coords.X, coords.Y]; // Set the new square to the old square's piece
+                        pieceGrid[coords.X, coords.Y] = null; // reset the old square
                         if (pieceGrid[i, j] != null)
                         {
                             if (pieceGrid[i, j].GetType() == typeof(King))
@@ -140,7 +140,17 @@ namespace Official_Chess_Actual
                         }
                         if (isCheck(team, pieceGrid))
                         {
-                            moveGrid[i, j] = 0;
+                            moveGrid[i, j] = 0; // If the move causes check disallow it
+                            if (pieceGrid[i, j].GetType() == typeof(King))
+                            {
+                                if (i == coords.X + 1 && moveIsValid(i + 1, j))
+                                {
+                                    if (moveGrid[i + 1, j] == 1)
+                                    {
+                                        moveGrid[i + 1, j] = 0;
+                                    }
+                                }
+                            }
                         }
                         pieceGrid[coords.X, coords.Y] = pieceGrid[i, j];
                         pieceGrid[i, j] = temp;
@@ -164,6 +174,84 @@ namespace Official_Chess_Actual
             }
             countsAsMove = true;
             return moveGrid;
+        }
+        
+        public static int[,] canCastle(Point coords, int[,] moveGrid, string team)
+        {
+            bool canCastleRight = true;
+            bool canCastleLeft = true;
+            /*if (selectedPiece.GetType() == typeof(King))
+            {
+                King king = (King)selectedPiece;
+                if (!king.canCastle)
+                    return moveGrid;
+                
+                if (moveIsValid(coords.X + 3, coords.Y))
+                {
+                    if (Form1.pieceGrid[coords.X + 3, coords.Y] != null)
+                        if (Form1.pieceGrid[coords.X + 3, coords.Y].GetType() == typeof(Rook))
+                        {
+                            Rook rook = (Rook)Form1.pieceGrid[coords.X + 3, coords.Y];
+                            if (rook.canCastle)
+                            {
+                                for (int i = 1; i < 4; i++)
+                                {
+                                    if (moveIsValid(coords.X + 3, coords.Y))
+                                        if (Form1.pieceGrid[coords.X + i, coords.Y] != null)
+                                        {
+                                            canCastleRight = false;
+                                        }
+                                }
+                                if (canCastleRight)
+                                {
+                                    moveGrid[coords.X + 2, coords.Y] = 1;
+                                }
+                            }
+                        }
+
+                    // Add castling left and make the rook move as well
+
+                }
+            }*/
+
+            moveGrid = canCastleKingSide(coords, moveGrid, team);
+            return moveGrid;
+        }
+        
+        public static int[,] canCastleKingSide(Point coords, int[,] moveGrid, string team)
+        {
+            Rook rook = new Rook("white");
+            System.Diagnostics.Debug.WriteLine(Form1.pieceGrid[coords.X, coords.Y].hasMoved);
+            King king = (King)Form1.pieceGrid[coords.X, coords.Y];
+
+            if (moveIsValid(coords.X + 3, coords.Y))
+            {
+                if (Form1.pieceGrid[coords.X + 3, coords.Y] != null) // Check if there is a rook in the required location
+                    if (Form1.pieceGrid[coords.X + 3, coords.Y].GetType() == typeof(Rook))
+                    {
+                        rook = (Rook)Form1.pieceGrid[coords.X + 3, coords.Y];
+                    }
+                    else
+                        return moveGrid;
+                else
+                    return moveGrid;
+            }
+            
+            if (king.hasMoved || rook.hasMoved || isCheck(team, Form1.pieceGrid)) // If the king or rook has moved or is in check, can't castle
+                return moveGrid;
+
+            for (int i = 1; i <= 2; i++) // Check each square to the right of the king for pieces
+            {
+                if (moveIsValid(coords.X + i, coords.Y))
+                    if (Form1.pieceGrid[coords.X + i, coords.Y] != null)
+                    {
+                        return moveGrid; // Returns moveGrid if a piece is in that square
+                    }
+            }
+
+            moveGrid[coords.X + 2, coords.Y] = 1;
+            return moveGrid;
+            
         }
     }
 }
