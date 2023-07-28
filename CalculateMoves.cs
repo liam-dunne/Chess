@@ -143,11 +143,18 @@ namespace Official_Chess_Actual
                             moveGrid[i, j] = 0; // If the move causes check disallow it
                             if (pieceGrid[i, j].GetType() == typeof(King))
                             {
-                                if (i == coords.X + 1 && moveIsValid(i + 1, j))
+                                if (i == coords.X + 1 && moveIsValid(i + 1, j)) 
                                 {
-                                    if (moveGrid[i + 1, j] == 1)
+                                    if (moveGrid[i + 1, j] == 1) // If moving the king one square to the right causes check, disallow the move to the right of that
                                     {
                                         moveGrid[i + 1, j] = 0;
+                                    }
+                                }
+                                else if (i == coords.X - 1 && moveIsValid(i - 1, j)) // Repeat for left side
+                                {
+                                    if (moveGrid[i - 1, j] == 1)
+                                    {
+                                        moveGrid[i - 1, j] = 0;
                                     }
                                 }
                             }
@@ -156,7 +163,7 @@ namespace Official_Chess_Actual
                         pieceGrid[i, j] = temp;
                         if (pieceGrid[coords.X, coords.Y] != null)
                         {
-                            if (pieceGrid[coords.X, coords.Y].GetType() == typeof(King))
+                            if (pieceGrid[coords.X, coords.Y].GetType() == typeof(King)) // Reset the king's location
                             {
                                 if (pieceGrid[coords.X, coords.Y].team == "white")
                                 {
@@ -176,60 +183,32 @@ namespace Official_Chess_Actual
             return moveGrid;
         }
         
-        public static int[,] canCastle(Point coords, int[,] moveGrid, string team)
-        {
-            bool canCastleRight = true;
-            bool canCastleLeft = true;
-            /*if (selectedPiece.GetType() == typeof(King))
-            {
-                King king = (King)selectedPiece;
-                if (!king.canCastle)
-                    return moveGrid;
-                
-                if (moveIsValid(coords.X + 3, coords.Y))
-                {
-                    if (Form1.pieceGrid[coords.X + 3, coords.Y] != null)
-                        if (Form1.pieceGrid[coords.X + 3, coords.Y].GetType() == typeof(Rook))
-                        {
-                            Rook rook = (Rook)Form1.pieceGrid[coords.X + 3, coords.Y];
-                            if (rook.canCastle)
-                            {
-                                for (int i = 1; i < 4; i++)
-                                {
-                                    if (moveIsValid(coords.X + 3, coords.Y))
-                                        if (Form1.pieceGrid[coords.X + i, coords.Y] != null)
-                                        {
-                                            canCastleRight = false;
-                                        }
-                                }
-                                if (canCastleRight)
-                                {
-                                    moveGrid[coords.X + 2, coords.Y] = 1;
-                                }
-                            }
-                        }
-
-                    // Add castling left and make the rook move as well
-
-                }
-            }*/
-
-            moveGrid = canCastleKingSide(coords, moveGrid, team);
-            return moveGrid;
-        }
         
-        public static int[,] canCastleKingSide(Point coords, int[,] moveGrid, string team)
+        public static int[,] canCastle(Point coords, int[,] moveGrid, string team, string direction)
         {
+            int directionMultiplier;
+            int offset;
+
+            if (direction == "left")
+            {
+                directionMultiplier = -1; // Multiplies values to reverse their direction
+                offset = -1; // Moves left by one when added
+            }
+            else
+            {
+                directionMultiplier = 1; // Multiplies values to keep their direction the same
+                offset = 0; // Has no effect when added
+            }
+
             Rook rook = new Rook("white");
-            System.Diagnostics.Debug.WriteLine(Form1.pieceGrid[coords.X, coords.Y].hasMoved);
             King king = (King)Form1.pieceGrid[coords.X, coords.Y];
 
-            if (moveIsValid(coords.X + 3, coords.Y))
+            if (moveIsValid(coords.X + (3 * directionMultiplier) + offset, coords.Y))
             {
-                if (Form1.pieceGrid[coords.X + 3, coords.Y] != null) // Check if there is a rook in the required location
-                    if (Form1.pieceGrid[coords.X + 3, coords.Y].GetType() == typeof(Rook))
+                if (Form1.pieceGrid[coords.X + (3 * directionMultiplier) + offset, coords.Y] != null) // Check if there is a rook in the required location
+                    if (Form1.pieceGrid[coords.X + (3 * directionMultiplier) + offset, coords.Y].GetType() == typeof(Rook))
                     {
-                        rook = (Rook)Form1.pieceGrid[coords.X + 3, coords.Y];
+                        rook = (Rook)Form1.pieceGrid[coords.X + (3 * directionMultiplier) + offset, coords.Y];
                     }
                     else
                         return moveGrid;
@@ -242,14 +221,14 @@ namespace Official_Chess_Actual
 
             for (int i = 1; i <= 2; i++) // Check each square to the right of the king for pieces
             {
-                if (moveIsValid(coords.X + i, coords.Y))
-                    if (Form1.pieceGrid[coords.X + i, coords.Y] != null)
+                if (moveIsValid(coords.X + (i * directionMultiplier), coords.Y))
+                    if (Form1.pieceGrid[coords.X + (i * directionMultiplier), coords.Y] != null)
                     {
                         return moveGrid; // Returns moveGrid if a piece is in that square
                     }
             }
 
-            moveGrid[coords.X + 2, coords.Y] = 1;
+            moveGrid[coords.X + (2 * directionMultiplier), coords.Y] = 1;
             return moveGrid;
             
         }

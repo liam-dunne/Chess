@@ -7,18 +7,6 @@ using System.Threading.Tasks;
 namespace Official_Chess_Actual
 {
 
-    /*
-
-
-    
-
-        ADD CHECKMATE USING CANMOVE VARIABLE AND KING MOVE FUNCTION
-
-
-
-
-
-    */ 
     public class Piece
     {
         public string team;
@@ -333,12 +321,14 @@ namespace Official_Chess_Actual
             {
                 if (team == "white")
                 {
-                    moveGrid = CalculateMoves.canCastle(coords, moveGrid, "black");
+                    moveGrid = CalculateMoves.canCastle(coords, moveGrid, "black", "left");
+                    moveGrid = CalculateMoves.canCastle(coords, moveGrid, "black", "right");
                     moveGrid = CalculateMoves.causesCheck(moveGrid, "black", coords, Form1.pieceGrid);
                 }
                 else
                 {
-                    moveGrid = CalculateMoves.canCastle(coords, moveGrid, "white");
+                    moveGrid = CalculateMoves.canCastle(coords, moveGrid, "white", "left");
+                    moveGrid = CalculateMoves.canCastle(coords, moveGrid, "white", "right");
                     moveGrid = CalculateMoves.causesCheck(moveGrid, "white", coords, Form1.pieceGrid);
                 }
             }

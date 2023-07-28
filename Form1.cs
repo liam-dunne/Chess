@@ -236,18 +236,25 @@ namespace Official_Chess_Actual
                     
                     if (selectedPiece.GetType() == typeof(King))
                     {
-                        if (coords.X == selectedCoords.X + 2 && coords.Y == selectedCoords.Y) // Move the rook left of the king
+                        if (coords.X == selectedCoords.X + 2 && coords.Y == selectedCoords.Y) // Move the rook left of the king when castling kingside
                         {
                             Piece rookToCastle = pieceGrid[selectedCoords.X + 3, selectedCoords.Y];
-                            if (rookToCastle.GetType() == typeof(Rook))
-                            {
-                                pieceGrid[coords.X - 1, coords.Y] = rookToCastle;
-                                pieceGrid[selectedCoords.X + 3, selectedCoords.Y] = null;
-                                grid[coords.X + 1, coords.Y].Image = null;
-                                string rookImageCode = selectedPieceTeamChar + "r";
-                                grid[coords.X - 1, coords.Y].Image = images[rookImageCode];
-                                rookToCastle.hasMoved = true;
-                            }
+                            pieceGrid[coords.X - 1, coords.Y] = rookToCastle;
+                            pieceGrid[selectedCoords.X + 3, selectedCoords.Y] = null;
+                            grid[coords.X + 1, coords.Y].Image = null;
+                            string rookImageCode = selectedPieceTeamChar + "r";
+                            grid[coords.X - 1, coords.Y].Image = images[rookImageCode];
+                            rookToCastle.hasMoved = true;
+                        }
+                        else if (coords.X == selectedCoords.X - 2 && coords.Y == selectedCoords.Y) // Move the rook right of the king when castling queenside
+                        {
+                            Piece rookToCastle = pieceGrid[selectedCoords.X - 4, selectedCoords.Y];
+                            pieceGrid[coords.X + 1, coords.Y] = rookToCastle;
+                            pieceGrid[selectedCoords.X - 4, selectedCoords.Y] = null;
+                            grid[coords.X - 2, coords.Y].Image = null;
+                            string rookImageCode = selectedPieceTeamChar + "r";
+                            grid[coords.X + 1, coords.Y].Image = images[rookImageCode];
+                            rookToCastle.hasMoved = true;
                         }
                     }
                 }
