@@ -13,12 +13,12 @@ namespace Official_Chess_Actual
         public int[,] moveGrid = new int[8, 8]; // Create an empty 8x8 grid for the possible moves
 
         public static Piece[,] pieceGrid = new Piece[8, 8];
-        public Button[,] grid = new Button[8, 8]; // Create an empty 8x8 grid of buttons
+        public static Button[,] grid = new Button[8, 8]; // Create an empty 8x8 grid of buttons
 
         string selectedPieceTeam; //Colour of the selected piece
         string selectedPieceType; //Type of selected piece
         string selectedPieceTypeChar; //First character of the selected piece's name (e.g k for king)
-        string selectedPieceTeamChar; //First character of the selected piece's team (e.g w for white
+        string selectedPieceTeamChar; //First character of the selected piece's team (e.g w for white)
         string selectedPieceImageCode; //The 2 letter combination of the name character and team character which forms a key in the image dictionary
 
         Color selectedColor;
@@ -27,7 +27,7 @@ namespace Official_Chess_Actual
         public static Point blackKingLocation = new Point(4, 7);
 
         //Dictionary to give a short code for each image, the first letter representing the colour and the second representing the piece
-        Dictionary<string, Image> images = new Dictionary<string, Image>()
+        public static Dictionary<string, Image> images = new Dictionary<string, Image>()
         {
             { "bp", Resource1.dark_pawn_image },
             { "wp", Resource1.light_pawn_image },
@@ -50,6 +50,7 @@ namespace Official_Chess_Actual
             createBoard();
             displayImages();
             createPieceBoard();
+
         }
 
         public void createBoard()
@@ -257,7 +258,18 @@ namespace Official_Chess_Actual
                             rookToCastle.hasMoved = true;
                         }
                     }
+
+
+                    if (selectedPiece.GetType() == typeof(Pawn) && Promotion.moveIsPromotion(coords)) // If the piece is a pawn and it reaches the other side of the board, display the promotion panel
+                    {
+                        Panel promotionPanel = Promotion.createPromotionPanel(selectedPieceTeamChar, coords); 
+                        displayPromotionScreen(promotionPanel);
+                    }
+
                 }
+
+                
+
                 
 
                 grid[selectedCoords.X, selectedCoords.Y].Image = null; // Set old location's image to null
@@ -341,6 +353,14 @@ namespace Official_Chess_Actual
             return grid;
         }
 
-        
+        // Take in a panel and add it to the front of the form
+        public void displayPromotionScreen(Panel promotionPanel)
+        {
+
+            Controls.Add(promotionPanel); 
+            promotionPanel.BringToFront();
+            
+        }
+
     }
 }
