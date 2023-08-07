@@ -10,6 +10,9 @@ namespace Official_Chess_Actual
 {
     internal class Promotion
     {
+
+        static Point promotionSquareCoords;
+
         static string[] promotionPiecesChars = { "n", "b", "r", "q" }; // List of characters representing the possible promotion pieces
 
         public static bool moveIsPromotion(Point coords) => coords.Y == 0 || coords.Y == 7; // Checks if the move is a promotion (only works when done on pawns since it only checks the y coordinate)
@@ -33,6 +36,10 @@ namespace Official_Chess_Actual
             promotionPanel.BackColor = Color.Navy;
 
             promotionPanel = addPromotionButtons(promotionPanel, selectedPieceTeamChar);
+
+            promotionSquareCoords = new Point((promotionPanel.Location.X + promotionPanel.Width / 2 - 260) / 80, (560 + 80 * directionMultiplier + promotionPanel.Height / 2 - promotionPanel.Location.Y) / 80);
+
+            Form1.isPromoting = true;
 
             return promotionPanel;
         }
@@ -95,6 +102,12 @@ namespace Official_Chess_Actual
             convertPromotionPiece(promotionPanel, selectedPieceTeamChar, promotionPiece, promotionPieceChar);
             
             promotionPanel.Hide(); // Hides the panel after a piece has been selected
+
+            Form1.checkStatus();
+
+            Form1.changeTurn();
+
+            Form1.isPromoting = false;
         }
 
         static void convertPromotionPiece(Panel promotionPanel, string selectedPieceTeamChar, Piece promotionPiece, string promotionPieceChar)

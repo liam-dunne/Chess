@@ -4,24 +4,24 @@ namespace Official_Chess_Actual
 
     public partial class Form1 : Form
     {
-        bool pieceSelected = false; // Whether or not a piece is selected
-        Piece? selectedPiece; // The currently selected piece
-        Point selectedCoords;       
+        static bool pieceSelected = false; // Whether or not a piece is selected
+        static Piece? selectedPiece; // The currently selected piece
+        static Point selectedCoords;       
 
-        string turn = "white";
+        static string turn = "white";
 
-        public int[,] moveGrid = new int[8, 8]; // Create an empty 8x8 grid for the possible moves
+        public static int[,] moveGrid = new int[8, 8]; // Create an empty 8x8 grid for the possible moves
 
         public static Piece[,] pieceGrid = new Piece[8, 8];
         public static Button[,] grid = new Button[8, 8]; // Create an empty 8x8 grid of buttons
 
-        string selectedPieceTeam; //Colour of the selected piece
-        string selectedPieceType; //Type of selected piece
-        string selectedPieceTypeChar; //First character of the selected piece's name (e.g k for king)
-        string selectedPieceTeamChar; //First character of the selected piece's team (e.g w for white)
-        string selectedPieceImageCode; //The 2 letter combination of the name character and team character which forms a key in the image dictionary
+        static string selectedPieceTeam; //Colour of the selected piece
+        static string selectedPieceType; //Type of selected piece
+        static string selectedPieceTypeChar; //First character of the selected piece's name (e.g k for king)
+        static string selectedPieceTeamChar; //First character of the selected piece's team (e.g w for white)
+        static string selectedPieceImageCode; //The 2 letter combination of the name character and team character which forms a key in the image dictionary
 
-        Color selectedColor;
+        static Color selectedColor;
 
         public static Point whiteKingLocation = new Point(4, 0);
         public static Point blackKingLocation = new Point(4, 7);
@@ -43,6 +43,7 @@ namespace Official_Chess_Actual
             { "wk", Resource1.light_king_image },
         };
 
+        public static bool isPromoting = false;
 
         public Form1()
         {
@@ -163,7 +164,7 @@ namespace Official_Chess_Actual
 
 
             // If no piece selected, sets the selected piece to the one in the clicked square and finds possible moves
-            if (!pieceSelected & pieceGrid[coords.X, coords.Y] != null)
+            if (!pieceSelected & pieceGrid[coords.X, coords.Y] != null && !isPromoting)
             {
                 if (pieceGrid[coords.X, coords.Y].team == turn)
                 {
@@ -232,88 +233,24 @@ namespace Official_Chess_Actual
             {
                 if (CalculateMoves.countsAsMove)
                 {
-                    selectedPiece.hasMoved = true;
-                    
-                    
-                    if (selectedPiece.GetType() == typeof(King))
-                    {
-                        if (coords.X == selectedCoords.X + 2 && coords.Y == selectedCoords.Y) // Move the rook left of the king when castling kingside
-                        {
-                            Piece rookToCastle = pieceGrid[selectedCoords.X + 3, selectedCoords.Y];
-                            pieceGrid[coords.X - 1, coords.Y] = rookToCastle;
-                            pieceGrid[selectedCoords.X + 3, selectedCoords.Y] = null;
-                            grid[coords.X + 1, coords.Y].Image = null;
-                            string rookImageCode = selectedPieceTeamChar + "r";
-                            grid[coords.X - 1, coords.Y].Image = images[rookImageCode];
-                            rookToCastle.hasMoved = true;
-                        }
-                        else if (coords.X == selectedCoords.X - 2 && coords.Y == selectedCoords.Y) // Move the rook right of the king when castling queenside
-                        {
-                            Piece rookToCastle = pieceGrid[selectedCoords.X - 4, selectedCoords.Y];
-                            pieceGrid[coords.X + 1, coords.Y] = rookToCastle;
-                            pieceGrid[selectedCoords.X - 4, selectedCoords.Y] = null;
-                            grid[coords.X - 2, coords.Y].Image = null;
-                            string rookImageCode = selectedPieceTeamChar + "r";
-                            grid[coords.X + 1, coords.Y].Image = images[rookImageCode];
-                            rookToCastle.hasMoved = true;
-                        }
-                    }
 
+                    castle(coords);
 
-                    if (selectedPiece.GetType() == typeof(Pawn) && Promotion.moveIsPromotion(coords)) // If the piece is a pawn and it reaches the other side of the board, display the promotion panel
+                    if (selectedPiece.GetType() == typeof(Pawn) && Promotion.moveIsPromotion(coords)) // If the piece is a pawn and it reaches the other side of the board, display the promotion panel and change piece locations
                     {
                         Panel promotionPanel = Promotion.createPromotionPanel(selectedPieceTeamChar, coords); 
                         displayPromotionScreen(promotionPanel);
+                        changeImages(coords); 
+                        changePieces(coords);
+                        return; 
                     }
 
                 }
 
-                
+                changeImages(coords);
+                changePieces(coords);
 
-                
-
-                grid[selectedCoords.X, selectedCoords.Y].Image = null; // Set old location's image to null
-                grid = resetImages(grid); // Removes all movement circles
-
-                if (selectedPieceTeam == "white") //Places the correct colour piece based on selected piece colour
-                    grid[coords.X, coords.Y].Image = images[selectedPieceImageCode];
-                else
-                    grid[coords.X, coords.Y].Image = images[selectedPieceImageCode];
-
-                // Set new location's image to correct image and reset original location's image to null
-                pieceGrid[coords.X, coords.Y] = selectedPiece;
-                pieceGrid[selectedCoords.X, selectedCoords.Y] = null;
-                pieceSelected = false;
-                grid[selectedCoords.X, selectedCoords.Y].BackColor = selectedColor;
-
-                // Set background colour of king to red if in check
-                // Also if it is check, check if it is checkmate
-                if (CalculateMoves.isCheck(selectedPieceTeam, pieceGrid))
-                {                    
-                    if (Checkmate.isCheckmate(selectedPiece, selectedPieceTeam, grid, moveGrid, pieceGrid))
-                    {
-                        Checkmate.CheckMate();
-                    }
-                }
-
-                // If not in check reset king's colour to its default
-                else
-                {
-                    if (selectedPieceTeam == "white")
-                    {
-                        if ((whiteKingLocation.X + whiteKingLocation.Y) % 2 == 0)
-                            grid[whiteKingLocation.X, whiteKingLocation.Y].BackColor = Color.DarkOliveGreen;
-                        else
-                            grid[whiteKingLocation.X, whiteKingLocation.Y].BackColor = Color.PapayaWhip;
-                    }
-                    if (selectedPieceTeam == "black")
-                    {
-                        if ((blackKingLocation.X + blackKingLocation.Y) % 2 == 0)
-                            grid[blackKingLocation.X, blackKingLocation.Y].BackColor = Color.DarkOliveGreen;
-                        else
-                            grid[blackKingLocation.X, blackKingLocation.Y].BackColor = Color.PapayaWhip;
-                    }
-                }
+                checkStatus();
 
                 // If moved piece was a king, update the variable storing its location
                 if (selectedPieceTypeChar == "k")
@@ -323,14 +260,10 @@ namespace Official_Chess_Actual
                     else
                         blackKingLocation = new Point(coords.X, coords.Y);
                 }
-                
-                // Change turn
-                if (turn == "white")
-                    turn = "black";
-                else if (turn == "black")
-                    turn = "white";
 
 
+
+                changeTurn();
 
 
             }
@@ -344,7 +277,7 @@ namespace Official_Chess_Actual
             return new Point(x, y);
         }
 
-        public Button[,] resetImages(Button[,] grid)
+        public static Button[,] resetImages(Button[,] grid)
         {
             foreach (Button button in grid)
             {
@@ -361,6 +294,101 @@ namespace Official_Chess_Actual
             promotionPanel.BringToFront();
             
         }
+
+        public static void changeImages(Point coords)
+        {
+            grid[selectedCoords.X, selectedCoords.Y].Image = null; // Set old location's image to null
+            grid = resetImages(grid); // Removes all movement circles
+
+            if (selectedPieceTeam == "white") //Places the correct colour piece based on selected piece colour
+                grid[coords.X, coords.Y].Image = images[selectedPieceImageCode];
+            else
+                grid[coords.X, coords.Y].Image = images[selectedPieceImageCode];
+
+            // Set new location's image to correct image and reset original location's image to null
+            
+            grid[selectedCoords.X, selectedCoords.Y].BackColor = selectedColor;
+            pieceSelected = false;
+        }
+        public static void changePieces(Point coords)
+        {
+            pieceGrid[coords.X, coords.Y] = selectedPiece;
+            pieceGrid[selectedCoords.X, selectedCoords.Y] = null;
+           
+        }
+
+        // Changes background colour of tiles based on whether it is check or not
+        public static void checkStatus()
+        {
+            // Set background colour of king to red if in check
+            // Also if it is check, check if it is checkmate
+            if (CalculateMoves.isCheck(selectedPieceTeam, pieceGrid))
+            {
+                if (Checkmate.isCheckmate(selectedPiece, selectedPieceTeam, grid, moveGrid, pieceGrid))
+                {
+                    Checkmate.CheckMate();
+                }
+            }
+
+            // If not in check reset king's colour to its default
+            else
+            {
+                if (selectedPieceTeam == "white")
+                {
+                    if ((whiteKingLocation.X + whiteKingLocation.Y) % 2 == 0)
+                        grid[whiteKingLocation.X, whiteKingLocation.Y].BackColor = Color.DarkOliveGreen;
+                    else
+                        grid[whiteKingLocation.X, whiteKingLocation.Y].BackColor = Color.PapayaWhip;
+                }
+                if (selectedPieceTeam == "black")
+                {
+                    if ((blackKingLocation.X + blackKingLocation.Y) % 2 == 0)
+                        grid[blackKingLocation.X, blackKingLocation.Y].BackColor = Color.DarkOliveGreen;
+                    else
+                        grid[blackKingLocation.X, blackKingLocation.Y].BackColor = Color.PapayaWhip;
+                }
+            }
+        }
+
+        public static void changeTurn()
+        {
+            // Change turn
+            if (turn == "white")
+                turn = "black";
+            else if (turn == "black")
+                turn = "white";
+        }
+
+        void castle(Point coords)
+        {
+            selectedPiece.hasMoved = true;
+
+
+            if (selectedPiece.GetType() == typeof(King))
+            {
+                if (coords.X == selectedCoords.X + 2 && coords.Y == selectedCoords.Y) // Move the rook left of the king when castling kingside
+                {
+                    Piece rookToCastle = pieceGrid[selectedCoords.X + 3, selectedCoords.Y];
+                    pieceGrid[coords.X - 1, coords.Y] = rookToCastle;
+                    pieceGrid[selectedCoords.X + 3, selectedCoords.Y] = null;
+                    grid[coords.X + 1, coords.Y].Image = null;
+                    string rookImageCode = selectedPieceTeamChar + "r";
+                    grid[coords.X - 1, coords.Y].Image = images[rookImageCode];
+                    rookToCastle.hasMoved = true;
+                }
+                else if (coords.X == selectedCoords.X - 2 && coords.Y == selectedCoords.Y) // Move the rook right of the king when castling queenside
+                {
+                    Piece rookToCastle = pieceGrid[selectedCoords.X - 4, selectedCoords.Y];
+                    pieceGrid[coords.X + 1, coords.Y] = rookToCastle;
+                    pieceGrid[selectedCoords.X - 4, selectedCoords.Y] = null;
+                    grid[coords.X - 2, coords.Y].Image = null;
+                    string rookImageCode = selectedPieceTeamChar + "r";
+                    grid[coords.X + 1, coords.Y].Image = images[rookImageCode];
+                    rookToCastle.hasMoved = true;
+                }
+            }
+        }
+
 
     }
 }
