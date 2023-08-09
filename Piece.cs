@@ -20,6 +20,10 @@ namespace Official_Chess_Actual
         private bool _canMove = false;
         public bool canMove { get { return _canMove; } set { _canMove = value; } }
 
+        private bool _justDoubleMoved = false;
+
+        public bool justDoubleMoved { get { return _justDoubleMoved; } set { _justDoubleMoved = value; } }
+
         public Piece(string Team)
         {
             team = Team;
@@ -44,6 +48,13 @@ namespace Official_Chess_Actual
                 if (Form1.pieceGrid[coords.X + xDirection, coords.Y + yDirection] != null)
                 {
                     if (Form1.pieceGrid[coords.X + xDirection, coords.Y + yDirection].team != team)
+                    {
+                        moveGrid[coords.X + xDirection, coords.Y + yDirection] = 2;
+                    }
+                }
+                else if (EnPassant.enPassantAvailable && Form1.pieceGrid[coords.X + xDirection, coords.Y] != null) // If en passant is available check the horizontal squares for an opposing pawn
+                {
+                    if (Form1.pieceGrid[coords.X + xDirection, coords.Y].team != team && Form1.pieceGrid[coords.X + xDirection, coords.Y].justDoubleMoved == true) //If the horizontally adjacent pawn has just double moved and is on the other team
                     {
                         moveGrid[coords.X + xDirection, coords.Y + yDirection] = 2;
                     }

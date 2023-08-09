@@ -231,6 +231,8 @@ namespace Official_Chess_Actual
             // If a move is legal, moves the piece to the new square and clears the old square and changes the turn
             else if (pieceSelected & new[] { 1, 2 }.Contains(moveGrid[coords.X, coords.Y]))
             {
+                clearDoubleMoves(pieceGrid);
+
                 if (CalculateMoves.countsAsMove)
                 {
 
@@ -244,6 +246,17 @@ namespace Official_Chess_Actual
                         changePieces(coords);
                         return; 
                     }
+
+                    if (EnPassant.isDoubleMove(selectedCoords, coords, selectedPiece)) // If a pawn double moves then en passant becomes legal
+                    {
+                        EnPassant.enPassantAvailable = true;
+                        selectedPiece.justDoubleMoved = true;
+                    }
+                    else if (EnPassant.enPassantAvailable)
+                    {
+                        EnPassant.enPassantAvailable = false;
+                    }
+                        
 
                 }
 
@@ -413,5 +426,17 @@ namespace Official_Chess_Actual
             Checkmate.Resign(turn);
         }
 
+        // Sets just double moved to false for all pieces
+        private void clearDoubleMoves(Piece[,] pieceGrid) 
+        {
+            for (int i = 0; i < 8; i++)
+                for (int j = 0; j < 8; j++)
+                {
+                    if (pieceGrid[i, j] != null)
+                    {
+                        pieceGrid[i, j].justDoubleMoved = false;
+                    }
+                }
+        }
     }
 }
