@@ -2,27 +2,44 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Official_Chess_Actual
 {
     internal class Checkmate
     {
-        public static void CheckMate()
+        public static void CheckMate(string team)
         {           
-            Form1.ActiveForm.Hide();
             Form2 form2 = new Form2();
+            form2.Controls[0].Text = $"Checkmate: {team} wins!";
             form2.Show();
         }
 
-        public static bool isCheckmate(Piece selectedPiece, string selectedPieceTeam, Button[,] grid, int[,] moveGrid, Piece[,] pieceGrid)
+        public static void StaleMate()
+        {
+            Form2 form2 = new Form2();
+            form2.Controls[0].Text = $"Stalemate: Draw!";
+            form2.Show();
+        }
+
+        public static void Resign(string team)
+        {
+            Form2 form2 = new Form2();
+            Form1.changeTurn(); // Change turn to find winning player
+            form2.Controls[0].Text = $"{team} resigned: {Form1.turn} wins!";
+            form2.Show();
+        }
+
+
+        public static bool isCheckmate(Piece selectedPiece, string selectedPieceTeam, Button[,] grid, int[,] moveGrid, Piece[,] pieceGrid, bool isCheck)
         {
             Point blackKingLocation = Form1.blackKingLocation;
             Point whiteKingLocation = Form1.whiteKingLocation;
             if (selectedPieceTeam == "white") // If white has just moved
             {
                 string opposingTeam = "black"; // Check black pieces
-                grid[blackKingLocation.X, blackKingLocation.Y].BackColor = Color.IndianRed;
+                if (isCheck)
+                    grid[blackKingLocation.X, blackKingLocation.Y].BackColor = Color.IndianRed;
                 selectedPiece = pieceGrid[blackKingLocation.X, blackKingLocation.Y];
                 moveGrid = selectedPiece.moveRules(blackKingLocation, true); // Find possible moves for black's king
 
@@ -31,7 +48,8 @@ namespace Official_Chess_Actual
             else
             {
                 string opposingTeam = "white"; // Check black pieces
-                grid[whiteKingLocation.X, whiteKingLocation.Y].BackColor = Color.IndianRed;
+                if (isCheck)
+                    grid[whiteKingLocation.X, whiteKingLocation.Y].BackColor = Color.IndianRed;
                 selectedPiece = pieceGrid[whiteKingLocation.X, whiteKingLocation.Y];
                 moveGrid = selectedPiece.moveRules(whiteKingLocation, true); // Find possible moves for black's king
 

@@ -17,7 +17,6 @@ namespace Official_Chess_Actual
             InitializeComponent();
             BackColor = Color.FromArgb(41, 44, 51);
             Label checkMateBox = new Label();
-            checkMateBox.Text = "Checkmate!";
             checkMateBox.TextAlign = ContentAlignment.MiddleCenter;
             checkMateBox.Font = new Font("Comic Sans MS", 72);
             checkMateBox.ForeColor = Color.White;
@@ -31,7 +30,12 @@ namespace Official_Chess_Actual
 
         private void Form2_Load(object sender, EventArgs e)
         {
+            this.FormClosing += new FormClosingEventHandler(Form2_FormClosing);
+        }
 
+        private void Form2_FormClosing(Object sender, FormClosingEventArgs e) // Closes the game when the end screen is closed
+        {
+            Application.Exit();
         }
     }
 }

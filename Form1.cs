@@ -8,7 +8,7 @@ namespace Official_Chess_Actual
         static Piece? selectedPiece; // The currently selected piece
         static Point selectedCoords;       
 
-        static string turn = "white";
+        public static string turn = "white";
 
         public static int[,] moveGrid = new int[8, 8]; // Create an empty 8x8 grid for the possible moves
 
@@ -51,7 +51,7 @@ namespace Official_Chess_Actual
             createBoard();
             displayImages();
             createPieceBoard();
-
+            createResignButton();
         }
 
         public void createBoard()
@@ -324,11 +324,16 @@ namespace Official_Chess_Actual
             // Also if it is check, check if it is checkmate
             if (CalculateMoves.isCheck(selectedPieceTeam, pieceGrid))
             {
-                if (Checkmate.isCheckmate(selectedPiece, selectedPieceTeam, grid, moveGrid, pieceGrid))
+                if (Checkmate.isCheckmate(selectedPiece, selectedPieceTeam, grid, moveGrid, pieceGrid, true))
                 {
-                    Checkmate.CheckMate();
+                    Checkmate.CheckMate(selectedPieceTeam);
                 }
             }
+            else if (Checkmate.isCheckmate(selectedPiece, selectedPieceTeam, grid, moveGrid, pieceGrid, false))
+            {
+                Checkmate.StaleMate();
+            }
+                
 
             // If not in check reset king's colour to its default
             else
@@ -389,6 +394,24 @@ namespace Official_Chess_Actual
             }
         }
 
+        // Adds the button to resign
+        void createResignButton()
+        {
+            Button resignButton = new Button();
+            resignButton.Size = new Size(160, 40);
+            resignButton.Location = new Point(892, 355);
+            resignButton.Text = "Resign";
+            resignButton.TextAlign = ContentAlignment.MiddleCenter;
+            resignButton.BackColor = Color.White;
+            resignButton.FlatStyle = FlatStyle.Flat;
+            resignButton.Click += new EventHandler(resignButtonClick);
+            Controls.Add(resignButton);
+        }
+
+        void resignButtonClick(object sender, EventArgs e)
+        {
+            Checkmate.Resign(turn);
+        }
 
     }
 }
