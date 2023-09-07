@@ -20,7 +20,7 @@ namespace Official_Chess_Actual
         private bool _canMove = false;
         public bool canMove { get { return _canMove; } set { _canMove = value; } }
 
-        private bool _justDoubleMoved = false;
+        private bool _justDoubleMoved = false; // Determines whether a pawn's double move occurred in the previous turn 
 
         public bool justDoubleMoved { get { return _justDoubleMoved; } set { _justDoubleMoved = value; } }
 
@@ -56,7 +56,7 @@ namespace Official_Chess_Actual
                 {
                     if (Form1.pieceGrid[coords.X + xDirection, coords.Y].team != team && Form1.pieceGrid[coords.X + xDirection, coords.Y].justDoubleMoved == true) //If the horizontally adjacent pawn has just double moved and is on the other team
                     {
-                        moveGrid[coords.X + xDirection, coords.Y + yDirection] = 2;
+                        moveGrid[coords.X + xDirection, coords.Y + yDirection] = 3;
                     }
                 }
             }
@@ -135,8 +135,8 @@ namespace Official_Chess_Actual
                         moveGrid = canTake(moveGrid, coords, i, -1, this.team);
                     }
                 }
-            
-                // If in check, test each move to see if the king is still in check after it. If so, disallow the move
+
+            // Here check represents whether or not to perform additional checks on the move, not whether a king is in check
             if (check)
             {             
                 if (team == "white")
@@ -182,7 +182,7 @@ namespace Official_Chess_Actual
                 moveGrid[x - 2, y - 1] = 1;
 
             moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
-            // If in check, test each move to see if the king is still in check after it. If so, disallow the move
+            // Here check represents whether or not to perform additional checks on the move, not whether a king is in check
             if (check)
             {
                 if (team == "white")
@@ -213,7 +213,7 @@ namespace Official_Chess_Actual
             moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, -1, -1, coords);
 
             moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
-            // If in check, test each move to see if the king is still in check after it. If so, disallow the move
+            // Here check represents whether or not to perform additional checks on the move, not whether a king is in check
             if (check)
             {
                 if (team == "white")
@@ -244,7 +244,7 @@ namespace Official_Chess_Actual
             moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, 0, -1, coords);
 
             moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
-            // If in check, test each move to see if the king is still in check after it. If so, disallow the move
+            // Here check represents whether or not to perform additional checks on the move, not whether a king is in check
             if (check)
             {
                 if (team == "white")
@@ -278,7 +278,7 @@ namespace Official_Chess_Actual
             moveGrid = CalculateMoves.calculateLongMoves(moveGrid, this.team, -1, -1, coords);
 
             moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
-            // If in check, test each move to see if the king is still in check after it. If so, disallow the move
+            // Here check represents whether or not to perform additional checks on the move, not whether a king is in check
             if (check)
             {
                 if (team == "white")
@@ -326,8 +326,8 @@ namespace Official_Chess_Actual
 
             moveGrid = CalculateMoves.canTake(moveGrid, this.team, coords);
 
-            
-            // If in check, test each move to see if the king is still in check after it. If so, disallow the move
+
+            // Here check represents whether or not to perform additional checks on the move, not whether a king is in check
             if (check)
             {
                 if (team == "white")

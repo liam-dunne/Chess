@@ -68,7 +68,6 @@ namespace Official_Chess_Actual
 
 
             // Set size and location of panel within form
-            board.Location = new Point(220, 20);
             board.Size = new Size(640, 640);
             board.Location = new Point(20, 20);
 
@@ -202,16 +201,13 @@ namespace Official_Chess_Actual
                                 grid[i, j].BackgroundImage = Resource1.grey_move_circle;
                                 grid[i, j].BackgroundImageLayout = ImageLayout.Center;
                             }
-                            else if (moveGrid[i, j] == 2)
+                            else if (moveGrid[i, j] == 2 || moveGrid[i, j] == 3)
                             {
                                 grid[i, j].BackgroundImage = Resource1.grey_capture_circle;
                                 grid[i, j].BackgroundImageLayout = ImageLayout.Center;
                             }
                         }
                     }
-                    System.Diagnostics.Debug.WriteLine(selectedPiece.hasMoved);
-                    if (pieceGrid[3, 4] != null)
-                        System.Diagnostics.Debug.WriteLine(pieceGrid[3, 4].GetType().ToString());
                 }
             }
 
@@ -229,7 +225,7 @@ namespace Official_Chess_Actual
             }
 
             // If a move is legal, moves the piece to the new square and clears the old square and changes the turn
-            else if (pieceSelected & new[] { 1, 2 }.Contains(moveGrid[coords.X, coords.Y]))
+            else if (pieceSelected & new[] { 1, 2, 3 }.Contains(moveGrid[coords.X, coords.Y]))
             {
                 clearDoubleMoves(pieceGrid);
 
@@ -255,6 +251,20 @@ namespace Official_Chess_Actual
                     else if (EnPassant.enPassantAvailable)
                     {
                         EnPassant.enPassantAvailable = false;
+                    }
+
+                    if (moveGrid[coords.X, coords.Y] == 3) // If en passant, remove the captured pawn
+                    {
+                        if (selectedPieceTeam == "white")
+                        {
+                            grid[coords.X, coords.Y - 1].Image = null;
+                            pieceGrid[coords.X, coords.Y - 1] = null;
+                        }
+                        if (selectedPieceTeam == "black")
+                        {
+                            grid[coords.X, coords.Y + 1].Image = null;
+                            pieceGrid[coords.X, coords.Y + 1] = null;
+                        }
                     }
                         
 
@@ -290,6 +300,7 @@ namespace Official_Chess_Actual
             return new Point(x, y);
         }
 
+        // Removes move circles
         public static Button[,] resetImages(Button[,] grid)
         {
             foreach (Button button in grid)

@@ -48,9 +48,6 @@ namespace Official_Chess_Actual
         }
 
 
-       
-        //In future might have to make the move where it reaches a piece legal to allow taking
-
 
         // Takes in the location of a piece and the direction it wants to move, and returns an array with all possible moves marked 1
 
@@ -116,7 +113,7 @@ namespace Official_Chess_Actual
             {
                 for (int j = 0; j <= 7; j++)
                 {
-                    if (new[] { 1, 2 }.Contains(moveGrid[i, j]))
+                    if (new[] { 1, 2, 3 }.Contains(moveGrid[i, j]))
                     {
                         Point tempKingLocation = new Point(0, 0);
                         Piece? temp = pieceGrid[i, j];

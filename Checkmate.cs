@@ -47,11 +47,11 @@ namespace Official_Chess_Actual
             }
             else
             {
-                string opposingTeam = "white"; // Check black pieces
+                string opposingTeam = "white"; // Check white pieces
                 if (isCheck)
                     grid[whiteKingLocation.X, whiteKingLocation.Y].BackColor = Color.IndianRed;
                 selectedPiece = pieceGrid[whiteKingLocation.X, whiteKingLocation.Y];
-                moveGrid = selectedPiece.moveRules(whiteKingLocation, true); // Find possible moves for black's king
+                moveGrid = selectedPiece.moveRules(whiteKingLocation, true); // Find possible moves for white's king
 
                 return possibleMovesExist(selectedPiece, moveGrid, pieceGrid, opposingTeam);
             }
@@ -62,7 +62,7 @@ namespace Official_Chess_Actual
         {
             for (int i = 0; i < 8; i++) // For each square on the board, if that square is a legal move for the king set canMove to true
                 for (int j = 0; j < 8; j++)
-                    if (new[] { 1, 2 }.Contains(moveGrid[i, j]))
+                    if (new[] { 1, 2, 3 }.Contains(moveGrid[i, j]))
                     {
                         selectedPiece.canMove = true;
                     }
@@ -82,7 +82,7 @@ namespace Official_Chess_Actual
                                 {
                                     for (int l = 0; l < 8; l++)
                                     {
-                                        if (new[] { 1, 2 }.Contains(moveGrid[k, l])) // If there is a legal move, return false
+                                        if (new[] { 1, 2, 3 }.Contains(moveGrid[k, l])) // If there is a legal move, return false
                                         {
                                             return false;
                                         }
